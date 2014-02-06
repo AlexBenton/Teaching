@@ -13,8 +13,7 @@ The code in this repo uses a Maven project (`pom.xml`) to pull down the OS-speci
 
 # Installation
 
-1. Fire up eclipse.
-   a. Make sure you've got m2e, the Maven plugin, installed.  If it isn't, you can install it going to Help / Install New Software... / [Select Eclipse Project updates] / Filter for 'Maven'.
+1. Fire up eclipse.  Make sure you've got m2e, the Maven plugin, installed.  If it isn't, you can install it going to Help / Install New Software... / [Select Eclipse Project updates] / Filter for 'Maven'.
 2. Click on File / Import...
 3. Select the "Existing Maven Projects" importer
 4. Browse to the root of your project; the importer should find the pom.xml file.
@@ -43,7 +42,7 @@ The following classes have `main()` routines and are demos I've either shown, or
   * `ShaderDemo`
   * `TextureDemo`
 
-The class MovieMakerBackbone uses the ray tracer to generate scene images and movies used in lectures.  I've included it because it shows off some of the ray tracer's features, but it's not a very interesting demo in its own right.
+The class `MovieMakerBackbone` uses the ray tracer to generate scene images and movies used in lectures.  I've included it because it shows off some of the ray tracer's features, but it's not a very interesting demo in its own right.
 
 ## Key controls
 
@@ -52,9 +51,9 @@ All the demo classes that derive from `JoglDemo` share a common set of key contr
 Key        | Command
 -----------|---------
 Mouse      | Spin around the origin
-Escape     | Quit
-PageUp     | Zoom in
-PageDown   | Zoom out
+`Escape`   | Quit
+`PageUp`   | Zoom in
+`PageDown` | Zoom out
 `1`        | Reset to looking along the Z axis
 `2`        | Reset to looking along the Y axis
 `P`        | Capture screenshot
