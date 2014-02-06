@@ -20,7 +20,7 @@ The code in this repo uses a Maven project (`pom.xml`) to pull down the OS-speci
 5. Import it.  All the rest of the directory structure should follow.
 
 
-# What's here
+# What's in this project
 
 This project contains multiple `main()` routines, so it contains multiple discrete Java apps (and a lot of shared framework code.  The code breaks down into:
 
