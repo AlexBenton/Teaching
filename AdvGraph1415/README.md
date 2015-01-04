@@ -1,52 +1,58 @@
 Sample code for Advanced Graphics course, Cambridge University.
-First added Feb 5 2014.
 
 
-# Warnings
+## Warning
 
 You can use this code freely for inspiration, examples of how to do it, examples of how not to do it... take your pick.  If you re-use large chunks of the code verbatim, please credit me.  Some portions of the math library come from Graphics Gems and other online sources.  The GIF image encoder is also not my work.
 
 This code comes with no warranty, express or implied.  It could break your PC, leak spoilers of your favorite shows, or insult your cat.  There should be unit tests, but there aren't.  There should be more cleanup and deallocation code for the OpenGL shader stuff, but there isn't.  Caveat emptor.
 
-The code in this repo uses a Maven project (`pom.xml`) to pull down the OS-specific binaries for JOGL, the Java OpenGL bindings.  (It pulls down the jars for Guava, too.)
+The code in this repo uses a Maven project (`pom.xml`) to fetch the OS-specific binaries for LWJGL, this year's preferred Java OpenGL bindings.  (It pulls down the jars for Google's Guava libraries, too.)
 
 
-# Installation
+## Installation
 
-1. Fire up eclipse.  Make sure you've got m2e, the Maven plugin, installed.  If it isn't, you can install it going to Help / Install New Software... / [Select Eclipse Project updates] / Filter for 'Maven'.
-2. Click on File / Import...
-3. Select the "Existing Maven Projects" importer
-4. Browse to the root of your project; the importer should find the pom.xml file.
-5. Import it.  All the rest of the directory structure should follow.
+These demos are in two parts: a `framework` project, which contains all the libraries used by all the sample code, and an `OpenGL Demos` project, which contains all the actual demos.
 
+### Eclipse setup
+1. Make sure you've got the '[m2e](http://download.eclipse.org/technology/m2e/releases/)' eclipse plugin installed.  This is Maven, which will download supporting libraries for you.
+2. Make sure you've got the '[mavennatives](https://code.google.com/p/mavennatives/)' eclipse plugin installed.  This is a support module for Maven which can download OS-specific binary libraries.
 
-# What's in this project
+### Framework
+1. Click on File / Import...
+2. Select the "Existing Maven Projects" importer
+3. Browse to the root of the `framework` project; the importer should find the pom.xml file.
+4. Import it.  All the rest of the directory structure should follow.
+5. Right-click on the `framework` project in Eclipse, choose Properties.
+  1. Go to Java Build Path
+  2. Choose 'Order and Export'
+  3. Check the 'Maven Dependencies' export
+  4. Hit OK
 
-This project contains multiple `main()` routines, so it contains multiple discrete Java apps (and a lot of shared framework code.  The code breaks down into:
+### OpenGL Demos
+1. Click on File / Import...
+2. Select the "Existing Projects into Workspace" importer
+3. Browse to the root of the `OpenGL Demos` project.
+4. Import the project.  It should automatically pick up a project dependency on `framework`.
 
-Main class                  | Description
-----------------------------|------------
-`com.bentonian.hellosquare` | Demo application for loading a minimal JOGL application and rendering with it.
-`com.bentonian.helloshader` | Demo application for loading a minimal shader and rendering with it.
-`com.bentonian.framework`   | A fairly sprawling library of support routines, including a scene graph.
-`com.bentonian.raytrace`    | A very limited, low-powered, ray tracer engine.  Still has some bugs.
-`com.bentonian.jogldemos`   | A suite of demo Java classes that show off various traits of OpenGL rendering.
+# What's in these demos
 
-The following classes have `main()` routines and are demos I've either shown, or used to create images for lectures:
-  
-  * `HelloSquare`
-  * `HelloShader{1, 2, 3}`
-  * `BlobbyDemo`
-  * `HierarchyDemo`
-  * `MorphDemo`
-  * `ShaderDemo`
-  * `TextureDemo`
+The `OpenGL Demos` project contains multiple `main()` routines, so it contains multiple discrete Java apps.  These are:
 
-The class `MovieMakerBackbone` uses the ray tracer to generate scene images and movies used in lectures.  I've included it because it shows off some of the ray tracer's features, but it's not a very interesting demo in its own right.
+Main class                                | Description
+------------------------------------------|------------
+`com.bentonian.gldemos.bezier`            | Bivariate 4x4 Bezier patch
+`com.bentonian.gldemos.blobby`            | Implicit surface ("Blobby") model animation
+`com.bentonian.gldemos.hierarchy`         | Recursive scene graph generates fractal geometry
+`com.bentonian.gldemos.morph`             | Interpolated animation of four parametric surfaces
+`com.bentonian.gldemos.offscreenrender`   | Simple scene showing the use of off-screen rendering
+`com.bentonian.gldemos.raytracedtexture`  | Simple raytracer demo on textured primitives
+`com.bentonian.gldemos.shaders`           | A suite of GLSL shaders applied to a suite of different models
+`com.bentonian.gldemos.subdivision`       | Loop, Doo-Sabin and Catmull-Clark subdivision
 
 ## Key controls
 
-All the demo classes that derive from `JoglDemo` share a common set of key controls:
+All the demo classes share a common set of mouse and key controls:
 
 Key        | Command
 -----------|---------
@@ -65,6 +71,12 @@ Key        | Command
 `+`        | Add a level
 `-`        | Remove a level
 
+`RayTracedTextureDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`r`        | Ray trace current view
+
 `ShaderDemo` also accepts the following keys:
 
 Key        | Command
@@ -73,3 +85,16 @@ Key        | Command
 `-`        | Go to previous shader
 `[`        | Go to previous model
 `]`        | Go to next model
+
+`SubdivisionDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`+`        | Refine one level with current scheme
+`-`        | Go up one level of refinement
+`[`        | Go to previous subdivision scheme
+`]`        | Go to next subdivision scheme
+`k`        | Go to previous model
+`j`        | Go to next model
+`e`        | Toggle surface edges
+`n`        | Toggle surface normals

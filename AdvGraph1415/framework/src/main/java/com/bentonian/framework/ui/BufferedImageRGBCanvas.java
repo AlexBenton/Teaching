@@ -1,0 +1,157 @@
+package com.bentonian.framework.ui;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import javax.imageio.ImageIO;
+
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+
+import com.bentonian.framework.math.M3d;
+import com.bentonian.framework.mesh.primitive.Square;
+import com.bentonian.framework.texture.Texture;
+
+public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
+
+  Graphics2D imageAccessor;
+
+  public BufferedImageRGBCanvas(int width, int height) {
+    this(width, height, BufferedImage.TYPE_3BYTE_BGR);
+  }
+
+  public BufferedImageRGBCanvas(int width, int height, int type) {
+    super(width, height, type);
+    imageAccessor = createGraphics();
+  }
+
+  /**
+   * Copy the pixels of the current OpenGL context into a BufferedImage.
+   */
+  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int width, int height) {
+    return copyOpenGlContextToImage(width, height, false);
+  }
+
+  /**
+   * Copy pixels, optionally flipping them vertically.
+   */
+  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int width, int height, 
+      boolean flipVertically) {
+    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
+    int W = Display.getWidth();
+    int H = Display.getHeight();
+
+    // Create and fill a ByteBuffer with the frame data.
+    ByteBuffer pixels = ByteBuffer.allocateDirect(W * H * 3 );
+    GL11.glReadBuffer(GL11.GL_BACK);
+    GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+    GL11.glReadPixels(0, 0, W, H, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, pixels);
+
+    // Transform the buffer into colored texture pixels
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int i = x * W / width;
+        int j = (flipVertically ? (height - 1) - y : y) * H / height;
+        int r = pixels.get(((j * W) + i) * 3 + 0) & 0x000000FF;
+        int g = pixels.get(((j * W) + i) * 3 + 1) & 0x000000FF;
+        int b = pixels.get(((j * W) + i) * 3 + 2) & 0x000000FF;
+        image.setRGB(x, y, (r << 16) | (g << 8) | (b << 0));
+      }
+    }
+    return image;
+  }
+
+  /**
+   * Copy pixels, optionally flipping them vertically.
+   */
+  public static BufferedImageRGBCanvas copyFrameBufferToImage(GLFrameBuffer framebuffer,
+      boolean flipVertically) {
+    int width = framebuffer.getWidth();
+    int height = framebuffer.getHeight();
+    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
+
+    // Create and fill a ByteBuffer with the frame data.
+    ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 3 );
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, framebuffer.getTextureId());
+    GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, pixels);
+
+    // Transform the buffer into colored texture pixels
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int j = flipVertically ? (height - 1) - y : y;
+        int r = pixels.get(((j * width) + x) * 3 + 0) & 0x000000FF;
+        int g = pixels.get(((j * width) + x) * 3 + 1) & 0x000000FF;
+        int b = pixels.get(((j * width) + x) * 3 + 2) & 0x000000FF;
+        image.setRGB(x, y, (r << 16) | (g << 8) | (b << 0));
+      }
+    }
+
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    return image;
+  }
+
+  /**
+   * Sample the pixels of the given Texture into a BufferedImage.
+   */
+  public static BufferedImageRGBCanvas copyTextureToImage(Texture texture, int width, int height) {
+    M3d LL = new M3d(-1, -1, 0);
+    Square canvas = new Square();
+    canvas.setTexture(texture);
+    BufferedImageRGBCanvas image =
+        new BufferedImageRGBCanvas(width, height, BufferedImage.TYPE_INT_ARGB);
+    int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < width; y++) {
+        M3d coord = LL.plus(new M3d(2.0 * x / width, 2.0 * y / height, 0));
+        M3d color = texture.getColor(canvas, coord);
+        raster[x + (height - 1 - y) * width] = color.asRGBA();
+      }
+    }
+    return image;
+  }
+
+  @Override
+  public void putPixel(int x, int y, M3d color) {
+    setRGB(x, y, rgb2Color(color).getRGB());
+  }
+
+  @Override
+  public void fill(double x, double y, double dx, double dy, M3d color) {
+    imageAccessor.setColor(rgb2Color(color));
+    imageAccessor.fillRect((int) x, (int) y, (int) dx, (int) dy);
+  }
+
+  public void clear() {
+    imageAccessor.setColor(new Color(1,1,1));
+    imageAccessor.fillRect(0, 0, getWidth(), getHeight());
+  }
+
+  /**
+   * Saves the current image to {@code filename}.
+   */
+  public void write(String filename) {
+    try {
+      ImageIO.write(this, "png", new File(filename));
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(-1);
+    }
+  }
+
+  private static Color rgb2Color(M3d color) {
+    float r = max(min((float)color.get(0), 1), 0);
+    float g = max(min((float)color.get(1), 1), 0);
+    float b = max(min((float)color.get(2), 1), 0);
+    return new Color(r, g, b);
+  }
+}
