@@ -25,11 +25,7 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
   Graphics2D imageAccessor;
 
   public BufferedImageRGBCanvas(int width, int height) {
-    this(width, height, BufferedImage.TYPE_3BYTE_BGR);
-  }
-
-  public BufferedImageRGBCanvas(int width, int height, int type) {
-    super(width, height, type);
+    super(width, height, BufferedImage.TYPE_INT_ARGB);
     imageAccessor = createGraphics();
   }
 
@@ -37,7 +33,7 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
    * Copy the pixels of the current OpenGL context into a BufferedImage.
    */
   public static BufferedImageRGBCanvas copyOpenGlContextToImage(int width, int height) {
-    return copyOpenGlContextToImage(width, height, false);
+    return copyOpenGlContextToImage(width, height, true);
   }
 
   /**
@@ -50,20 +46,21 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
     int H = Display.getHeight();
 
     // Create and fill a ByteBuffer with the frame data.
-    ByteBuffer pixels = ByteBuffer.allocateDirect(W * H * 3 );
+    ByteBuffer pixels = ByteBuffer.allocateDirect(W * H * 4);
     GL11.glReadBuffer(GL11.GL_BACK);
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-    GL11.glReadPixels(0, 0, W, H, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, pixels);
+    GL11.glReadPixels(0, 0, W, H, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 
     // Transform the buffer into colored texture pixels
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int i = x * W / width;
         int j = (flipVertically ? (height - 1) - y : y) * H / height;
-        int r = pixels.get(((j * W) + i) * 3 + 0) & 0x000000FF;
-        int g = pixels.get(((j * W) + i) * 3 + 1) & 0x000000FF;
-        int b = pixels.get(((j * W) + i) * 3 + 2) & 0x000000FF;
-        image.setRGB(x, y, (r << 16) | (g << 8) | (b << 0));
+        int r = pixels.get(((j * W) + i) * 4 + 0) & 0x000000FF;
+        int g = pixels.get(((j * W) + i) * 4 + 1) & 0x000000FF;
+        int b = pixels.get(((j * W) + i) * 4 + 2) & 0x000000FF;
+        int a = pixels.get(((j * W) + i) * 4 + 3) & 0x000000FF;
+        image.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | (b << 0));
       }
     }
     return image;
@@ -79,10 +76,10 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
     BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
 
     // Create and fill a ByteBuffer with the frame data.
-    ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 3 );
+    ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 4 );
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, framebuffer.getTextureId());
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, pixels);
+    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 
     // Transform the buffer into colored texture pixels
     for (int y = 0; y < height; y++) {
@@ -91,7 +88,8 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
         int r = pixels.get(((j * width) + x) * 3 + 0) & 0x000000FF;
         int g = pixels.get(((j * width) + x) * 3 + 1) & 0x000000FF;
         int b = pixels.get(((j * width) + x) * 3 + 2) & 0x000000FF;
-        image.setRGB(x, y, (r << 16) | (g << 8) | (b << 0));
+        int a = pixels.get(((j * width) + x) * 4 + 2) & 0x000000FF;
+        image.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | (b << 0));
       }
     }
 
@@ -106,8 +104,7 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
     M3d LL = new M3d(-1, -1, 0);
     Square canvas = new Square();
     canvas.setTexture(texture);
-    BufferedImageRGBCanvas image =
-        new BufferedImageRGBCanvas(width, height, BufferedImage.TYPE_INT_ARGB);
+    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
     int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
     for (int x = 0; x < width; x++) {
