@@ -2,8 +2,6 @@
 
 This directory contains source code trees from past lecture series.  The current year's lecture samples are at the root of the repo.
 
-# Warnings
-
 Code stored here is not maintained or supported.
 
 # Contents
