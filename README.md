@@ -1,6 +1,6 @@
 # Sample code for lectures
 
-This directory contains sample code for lectures.  The current year's lecture samples are at the root of the repo.
+This directory contains sample code for lectures.  The current series is [AdvGraph1415](https://github.com/AlexBenton/Teaching/tree/master/AdvGraph1415).
 
 Code for previous years is not maintained or supported.
 
