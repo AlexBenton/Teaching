@@ -1,24 +1,22 @@
 Sample code for Advanced Graphics course, Cambridge University.
 
 
-## Warning
-
-You can use this code freely for inspiration, examples of how to do it, examples of how not to do it... take your pick.  If you re-use large chunks of the code verbatim, please credit me.  Some portions of the math library come from Graphics Gems and other online sources.  The GIF image encoder is also not my work.
+# Warning
 
 This code comes with no warranty, express or implied.  It could break your PC, leak spoilers of your favorite shows, or insult your cat.  There should be unit tests, but there aren't.  There should be more cleanup and deallocation code for the OpenGL shader stuff, but there isn't.  Caveat emptor.
 
-The code in this repo uses a Maven project (`pom.xml`) to fetch the OS-specific binaries for LWJGL, this year's preferred Java OpenGL bindings.  (It pulls down the jars for Google's Guava libraries, too.)
+You can use this code freely for inspiration, examples of how to do it, examples of how not to do it... take your pick.  If you re-use large chunks of the code verbatim, please credit me.  Some portions of the math library come from Graphics Gems and other online sources.  The GIF image encoder is also not my work.
 
 
-## Installation
+# Installation
 
 These demos are in two parts: a `framework` project, which contains all the libraries used by all the sample code, and an `OpenGL Demos` project, which contains all the actual demos.
 
-### Eclipse setup
+#### Eclipse setup
 1. Make sure you've got the '[m2e](http://download.eclipse.org/technology/m2e/releases/)' eclipse plugin installed.  This is Maven, which will download supporting libraries for you.
 2. Make sure you've got the '[mavennatives](https://code.google.com/p/mavennatives/)' eclipse plugin installed.  This is a support module for Maven which can download OS-specific binary libraries.
 
-### Framework
+#### Framework
 1. Click on File / Import...
 2. Select the "Existing Maven Projects" importer
 3. Browse to the root of the `framework` project; the importer should find the pom.xml file.
@@ -29,7 +27,7 @@ These demos are in two parts: a `framework` project, which contains all the libr
   3. Check the 'Maven Dependencies' export
   4. Hit OK
 
-### OpenGL Demos
+#### OpenGL Demos
 1. Click on File / Import...
 2. Select the "Existing Projects into Workspace" importer
 3. Browse to the root of the `OpenGL Demos` project.
