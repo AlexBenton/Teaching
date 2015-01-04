@@ -20,12 +20,10 @@ public class DemoApp extends GLWindowedApp {
   protected Set<Integer> keysHeldDown;
   protected long lastFrameStartMillis;
 
-  private String screenshot;
   private String title;
 
   protected DemoApp(String title) {
     this.title = title;
-    this.screenshot = null;
     this.keysHeldDown = Sets.newHashSet();
     setCameraDistance(10);
   }
@@ -76,12 +74,7 @@ public class DemoApp extends GLWindowedApp {
       break;
     case Keyboard.KEY_P:
       if (isControlDown()) {
-        int i = 0;
-        screenshot = FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + title;
-        while (new File(screenshot + "(" + i + ").png").exists()) {
-          i++;
-        }
-        screenshot = screenshot + "(" + i + ")" + ".png";
+        captureScreenshot(getScreenshotName());
       }
       break;
     }
@@ -118,15 +111,6 @@ public class DemoApp extends GLWindowedApp {
   }
 
   @Override
-  protected void postDraw() {
-    if (screenshot != null) {
-      BufferedImageRGBCanvas.copyOpenGlContextToImage(width, height).write(screenshot);
-      screenshot = null;
-    }
-    super.postDraw();
-  }
-
-  @Override
   protected void onMouseDown(int x, int y, int mouseButton) {
     lastCapturedMousePosition = new Point(x, y);
   }
@@ -160,5 +144,22 @@ public class DemoApp extends GLWindowedApp {
       notches /= 10;
     }
     setCameraDistance(getCameraDistance() + notches);
+  }
+  
+  private String getScreenshotName() {
+    int i = 0;
+    String screenshot = FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + title;
+    while (new File(screenshot + "(" + i + ").png").exists()) {
+      i++;
+    }
+    return screenshot + "(" + i + ")" + ".png";
+  }
+  
+  private void captureScreenshot(String file) {
+    GLFrameBuffer frameBuffer = new GLFrameBuffer(getWidth(), getHeight());
+    pushFrameBuffer(frameBuffer);
+    mainLoop();
+    popFrameBuffer(frameBuffer);
+    BufferedImageRGBCanvas.copyFrameBufferToImage(frameBuffer).write(file);
   }
 }

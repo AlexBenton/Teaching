@@ -32,69 +32,55 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
   /**
    * Copy the pixels of the current OpenGL context into a BufferedImage.
    */
-  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int width, int height) {
-    return copyOpenGlContextToImage(width, height, true);
-  }
-
-  /**
-   * Copy pixels, optionally flipping them vertically.
-   */
-  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int width, int height, 
-      boolean flipVertically) {
-    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
-    int W = Display.getWidth();
-    int H = Display.getHeight();
+  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int destWidth, int destHeight) {
+    int sourceWidth = Display.getWidth();
+    int sourceHeight = Display.getHeight();
 
     // Create and fill a ByteBuffer with the frame data.
-    ByteBuffer pixels = ByteBuffer.allocateDirect(W * H * 4);
-    GL11.glReadBuffer(GL11.GL_BACK);
+    ByteBuffer pixels = ByteBuffer.allocateDirect(sourceWidth * sourceHeight * 4);
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-    GL11.glReadPixels(0, 0, W, H, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+    GL11.glReadPixels(0, 0, sourceWidth, sourceHeight, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 
-    // Transform the buffer into colored texture pixels
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int i = x * W / width;
-        int j = (flipVertically ? (height - 1) - y : y) * H / height;
-        int r = pixels.get(((j * W) + i) * 4 + 0) & 0x000000FF;
-        int g = pixels.get(((j * W) + i) * 4 + 1) & 0x000000FF;
-        int b = pixels.get(((j * W) + i) * 4 + 2) & 0x000000FF;
-        int a = pixels.get(((j * W) + i) * 4 + 3) & 0x000000FF;
-        image.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | (b << 0));
-      }
-    }
-    return image;
+    GL11.glReadBuffer(GL11.GL_BACK);
+    return copyPixelsToImage(pixels, sourceWidth, sourceHeight, destWidth, destHeight);
   }
 
   /**
    * Copy pixels, optionally flipping them vertically.
    */
-  public static BufferedImageRGBCanvas copyFrameBufferToImage(GLFrameBuffer framebuffer,
-      boolean flipVertically) {
+  public static BufferedImageRGBCanvas copyFrameBufferToImage(GLFrameBuffer framebuffer) {
     int width = framebuffer.getWidth();
     int height = framebuffer.getHeight();
-    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
 
     // Create and fill a ByteBuffer with the frame data.
     ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 4 );
-    GL11.glBindTexture(GL11.GL_TEXTURE_2D, framebuffer.getTextureId());
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, framebuffer.getTextureId());
     GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+    BufferedImageRGBCanvas image = copyPixelsToImage(pixels, width, height, width, height);
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    return image;
+  }
+  
+  private static BufferedImageRGBCanvas copyPixelsToImage(ByteBuffer pixels,
+      int sourceWidth, int sourceHeight, int destWidth, int destHeight) {
+    final boolean flipVertically = true;
 
     // Transform the buffer into colored texture pixels
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int j = flipVertically ? (height - 1) - y : y;
-        int r = pixels.get(((j * width) + x) * 3 + 0) & 0x000000FF;
-        int g = pixels.get(((j * width) + x) * 3 + 1) & 0x000000FF;
-        int b = pixels.get(((j * width) + x) * 3 + 2) & 0x000000FF;
-        int a = pixels.get(((j * width) + x) * 4 + 2) & 0x000000FF;
+    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(destWidth, destHeight);
+    for (int y = 0; y < destHeight; y++) {
+      for (int x = 0; x < destWidth; x++) {
+        int i = x * sourceWidth / destWidth;
+        int j = (flipVertically ? (destHeight - 1) - y : y) * sourceHeight / destHeight;
+        int r = pixels.get(((j * sourceWidth) + i) * 4 + 0) & 0x000000FF;
+        int g = pixels.get(((j * sourceWidth) + i) * 4 + 1) & 0x000000FF;
+        int b = pixels.get(((j * sourceWidth) + i) * 4 + 2) & 0x000000FF;
+        int a = pixels.get(((j * sourceWidth) + i) * 4 + 3) & 0x000000FF;
         image.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | (b << 0));
       }
     }
-
-    GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     return image;
+
   }
 
   /**

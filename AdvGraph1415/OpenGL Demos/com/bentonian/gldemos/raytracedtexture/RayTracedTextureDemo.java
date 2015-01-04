@@ -1,4 +1,4 @@
-package com.bentonian.gldemos.texture;
+package com.bentonian.gldemos.raytracedtexture;
 
 import java.awt.Graphics;
 import java.util.List;
@@ -24,13 +24,13 @@ import com.bentonian.framework.ui.DemoApp;
 import com.bentonian.framework.ui.GLWindowedAppSecondaryFrame;
 import com.google.common.collect.ImmutableList;
 
-public class RayTracingTextureDemo extends DemoApp {
+public class RayTracedTextureDemo extends DemoApp {
   
   private static final Primitive BASE = new Circle().translate(new M3d(0, -1.25, 0));
 
   private final Texture[] textures = new Texture[] {
-      new BufferedImageTexture(RayTracingTextureDemo.class, "opengl.png"),
-      new BufferedImageTexture(RayTracingTextureDemo.class, "earth.png"),
+      new BufferedImageTexture(RayTracedTextureDemo.class, "opengl.png"),
+      new BufferedImageTexture(RayTracedTextureDemo.class, "earth.png"),
   };
   private final MeshPrimitiveWithTexture[] meshes = new MeshPrimitiveWithTexture[] {
     new Cube(),
@@ -48,7 +48,7 @@ public class RayTracingTextureDemo extends DemoApp {
   private RayTracerEngine engine;
   private BufferedImageRGBCanvas canvas;
 
-  protected RayTracingTextureDemo() {
+  protected RayTracedTextureDemo() {
     super("Textures");
 
     this.scene = new Scene() {
@@ -132,6 +132,6 @@ public class RayTracingTextureDemo extends DemoApp {
   /////////////////////////////////////////////////////////////////////////////
 
   public static void main(String[] args) {
-    new RayTracingTextureDemo().run();
+    new RayTracedTextureDemo().run();
   }
 }
