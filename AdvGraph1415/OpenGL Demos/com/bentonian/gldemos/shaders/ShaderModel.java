@@ -10,8 +10,8 @@ import com.bentonian.framework.mesh.primitive.Torus;
 import com.bentonian.framework.scene.Primitive;
 
 public enum ShaderModel {
-  SPHERE(new Sphere()),
   CUBE(new Cube()),
+  SPHERE(new Sphere()),
   TORUS(new Torus()),
   TEAPOT(new MeshPrimitive(OFFUtil.parseFile("teapot.off"))),
   BUNNY(new MeshPrimitive(OFFUtil.parseFile("bunny.off")).scale(new M3d(2, 2, 2))),

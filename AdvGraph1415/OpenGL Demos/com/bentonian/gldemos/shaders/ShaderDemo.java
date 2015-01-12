@@ -7,6 +7,9 @@ import java.awt.Point;
 import org.lwjgl.input.Keyboard;
 
 import com.bentonian.framework.math.M3d;
+import com.bentonian.framework.math.M4x4;
+import com.bentonian.framework.mesh.primitive.MeshPrimitive;
+import com.bentonian.framework.scene.CameraAnimator;
 import com.bentonian.framework.ui.DemoApp;
 
 public class ShaderDemo extends DemoApp {
@@ -33,7 +36,7 @@ public class ShaderDemo extends DemoApp {
   public ShaderDemo() {
     super("Shader demo");
     this.nextShader = 0;
-    this.model = ShaderModel.SPHERE;
+    this.model = ShaderModel.CUBE;
     setCameraDistance(CAMERA_DISTANCE);
   }
 
@@ -47,16 +50,37 @@ public class ShaderDemo extends DemoApp {
     switch (key) {
     case Keyboard.KEY_1:
     case Keyboard.KEY_2:
+    case Keyboard.KEY_3:
       super.onKeyDown(key);
       mandelbrotZoom = 1;
       mandelbrotCenterX = 0;
       mandelbrotCenterY = 0;
       break;
+    case Keyboard.KEY_0:
+    {
+      M3d pt = new M3d(1, 1, 1).normalized().times(CAMERA_DISTANCE);
+      pt = M4x4.rotationMatrix(new M3d(0, 1, 0), 0.15).times(pt);
+      pt = M4x4.rotationMatrix(getCamera().getLocalToParent().extract3x3().times(new M3d(1, 0, 0)), -0.15).times(pt);
+      cameraAnimator = new CameraAnimator(getCamera(), pt, pt.times(-1), new M3d(0, 1, 0), 1000);
+      break;
+    }
     case Keyboard.KEY_MINUS:
       nextShader = (currentShader + shaders.length - 1) % shaders.length;
       break;
     case Keyboard.KEY_EQUALS:
       nextShader = (currentShader + shaders.length + 1) % shaders.length;
+      break;
+    case Keyboard.KEY_E:
+      if (model.getGeometry() instanceof MeshPrimitive) {
+        ((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().setShowEdges(
+            !((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().getShowEdges());
+      }
+      break;
+    case Keyboard.KEY_N:
+      if (model.getGeometry() instanceof MeshPrimitive) {
+        ((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().setShowNormals(
+            !((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().getShowNormals());
+      }
       break;
     case Keyboard.KEY_LBRACKET:
       model = model.prev();
@@ -113,7 +137,7 @@ public class ShaderDemo extends DemoApp {
   @Override
   public void onMouseWheel(int delta) {
     if (isControlDown()) {
-      double notches = -delta;
+      double notches = -delta / 50.0;
       mandelbrotZoom *= Math.pow(1.1, notches);
     } else {
       super.onMouseWheel(delta);

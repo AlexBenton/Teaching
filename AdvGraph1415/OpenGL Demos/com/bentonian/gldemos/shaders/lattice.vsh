@@ -7,13 +7,13 @@ uniform mat3 normalToWorld;
 in vec4 vPosition;
 in vec3 vNormal;
 
-out vec3 vLocal;
-out vec3 vWorld;
-out vec3 nWorld;
+out vec3 local;
+out vec3 position;
+out vec3 normal;
 
 void main() {
-  vLocal      = vec3(vPosition);
-  vWorld      = vec3(modelToWorld * vPosition);
-  nWorld      = vec3(normalToWorld * vNormal);
+  local       = vec3(vPosition);
+  position    = vec3(modelToWorld * vPosition);
+  normal      = vec3(normalToWorld * vNormal);
   gl_Position = modelToScreen * vPosition;
 }

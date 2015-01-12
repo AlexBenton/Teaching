@@ -18,7 +18,7 @@ public class MeshPrimitiveFeatureAccelerator {
   private final GLVertexData vao;
   
   private M3d edgeColor = BLACK;
-  private boolean showEdges = true;
+  private boolean showEdges = false;
   private boolean showNormals = false;
 
   public MeshPrimitiveFeatureAccelerator(Mesh mesh) {
@@ -39,11 +39,19 @@ public class MeshPrimitiveFeatureAccelerator {
     this.vao.dispose();
   }
 
+  public boolean getShowEdges() {
+    return showEdges;
+  }
+
   public void setShowNormals(boolean showNormals) {
     if (showNormals != this.showNormals) {
       this.showNormals = showNormals;
       this.vao.dispose();
     }
+  }
+
+  public boolean getShowNormals() {
+    return showNormals;
   }
 
   public void render(GLCanvas glCanvas) {

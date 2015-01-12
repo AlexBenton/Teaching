@@ -178,7 +178,7 @@ public class GLCanvas {
     updateM3x3("normalToCamera", modelToCamera.times(modelToWorld).extract3x3().inverted().transposed());
     updateM4x4("modelToScreen", projection.peek().times(modelToCamera));
     updateVec3("eyePosition", camera.getPosition());
-    updateVec3("lightDirection", getLightDirection());
+    updateVec3("lightPosition", getLightPosition());
   }
 
   protected void updateProjectionMatrix() {
@@ -186,8 +186,8 @@ public class GLCanvas {
     updateM4x4("modelToScreen", projection.peek().times(camera.getParentToLocal().times(peek())));
   }
 
-  protected M3d getLightDirection() {
-    return camera.getPosition().normalized();
+  protected M3d getLightPosition() {
+    return camera.getPosition().normalized().times(1000);
   }
 
   private void updateM4x4(String uniformName, M4x4 T) {

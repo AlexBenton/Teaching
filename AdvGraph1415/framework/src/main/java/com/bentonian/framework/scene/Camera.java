@@ -73,6 +73,25 @@ public class Camera {
     return this;
   }
 
+  public void lookAt(M3d from, M3d dir, M3d up) {
+    if (Math.abs(up.dot(dir)) > 0.9999) {
+      up = up
+          .plus((Math.abs(up.getZ()) > 0.999) ? new M3d(0, 0.1, 0) : new M3d(0, 0, -0.1))
+          .normalized();
+    }
+
+    M3d zaxis = dir.normalized().times(-1);
+    M3d xaxis = up.cross(zaxis).normalized();
+    M3d yaxis = zaxis.cross(xaxis);
+
+    setLocalToParent(new M4x4(
+        xaxis.getX(),      yaxis.getX(),      zaxis.getX(),     0,
+        xaxis.getY(),      yaxis.getY(),      zaxis.getY(),     0,
+        xaxis.getZ(),      yaxis.getZ(),      zaxis.getZ(),     0,
+        0, 0, 0, 1).transposed());
+    translate(from);
+  }
+
   public M3d getPosition() {
     return getLocalToParent().times(new M3d(0,0,0));
   }

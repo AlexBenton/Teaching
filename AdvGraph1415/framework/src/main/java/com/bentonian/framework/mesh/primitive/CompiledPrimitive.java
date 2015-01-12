@@ -23,30 +23,30 @@ public class CompiledPrimitive extends MaterialPrimitive {
     return vao.isCompiled();
   }
   
-  public void normal(M3d normal) {
-    vao.normal(normal);
-  }
-
-  public void color(M3d color) {
-    vao.color(color);
-  }
-
   public void setHasTexture(boolean hasTexture) {
     if (hasTexture != vao.hasTexture()) {
       vao.setHasTexture(hasTexture);
     }
   }
-
-  public void textureCoordinates(TexCoord tc) {
-    vao.textureCoordinates(tc);
-  }
-
-  public void vertex(M3d point) {
-    vao.vertex(point);
-  }
   
   public void dispose() {
     vao.dispose();
+  }
+
+  protected void normal(M3d normal) {
+    vao.normal(normal);
+  }
+
+  protected void color(M3d color) {
+    vao.color(color);
+  }
+
+  protected void textureCoordinates(TexCoord tc) {
+    vao.textureCoordinates(tc);
+  }
+
+  protected void vertex(M3d point) {
+    vao.vertex(point);
   }
   
   @Override

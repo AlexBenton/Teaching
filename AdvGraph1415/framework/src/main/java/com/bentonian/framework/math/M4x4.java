@@ -22,7 +22,16 @@ public class M4x4 {
     setData(A);
   }
 
-  public M4x4(float[] A) {
+  public M4x4(float... A) {
+    int i = 0;
+    for (int col = 0; col < 4; col++) {
+      for (int row = 0; row < 4; row++) {
+        data[row][col] = A[i++];
+      }
+    }
+  }
+
+  public M4x4(double... A) {
     int i = 0;
     for (int col = 0; col < 4; col++) {
       for (int row = 0; row < 4; row++) {

@@ -3,9 +3,9 @@
 uniform vec3 Ping;
 uniform float Time;
 uniform vec3 eyePosition;
-uniform vec3 lightDirection;
+uniform vec3 lightPosition;
 
-in vec3 worldPos;
+in vec3 position;
 in vec3 normal;
 
 out vec4 fragmentColor;
@@ -23,7 +23,7 @@ void main() {
   vec3 n = normalize(normal);
 
   if (length(Ping) > 0.01) {
-    vec3 radial = worldPos - Ping;
+    vec3 radial = position - Ping;
     vec3 axisOfRotation = cross(radial, n);
     float d = length(radial);
     float theta = sin((d - Time) * PI * 5.0) * PI / 4.0  / ((d + 1) * (d + 1));
@@ -31,10 +31,10 @@ void main() {
     n = normalize(tiltMatrix * n);
   }
 
-  vec3 r = normalize(reflect(lightDirection, n));
-  vec3 e = normalize(eyePosition - worldPos);
+  vec3 r = normalize(reflect(lightPosition - position, n));
+  vec3 e = normalize(eyePosition - position);
 
-  vec3 diffuse = diffuseColor * max(0.0, dot(n, lightDirection)) * kDiffuse;
+  vec3 diffuse = diffuseColor * max(0.0, dot(n, normalize(lightPosition - position))) * kDiffuse;
   vec3 specular = specularColor * pow(max(0.0, dot(r, e)), shininess) * kSpecular;
 
   fragmentColor = vec4(diffuse + specular, 1);
