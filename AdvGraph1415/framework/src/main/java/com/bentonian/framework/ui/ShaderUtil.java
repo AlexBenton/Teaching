@@ -105,8 +105,7 @@ public class ShaderUtil {
 
   public static int validateLocation(int location, String name) {
     if (location < 0) {
-      RuntimeException e = new RuntimeException(
-          "Whoops!  Couldn't find " + name + ".");
+      RuntimeException e = new RuntimeException("Whoops!  Couldn't find " + name + ".");
       e.printStackTrace();
       System.exit(-1);
     }

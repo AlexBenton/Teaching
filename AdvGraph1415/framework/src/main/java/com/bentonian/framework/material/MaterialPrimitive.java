@@ -18,12 +18,13 @@ public abstract class MaterialPrimitive extends Primitive {
     return material;
   }
 
-  public void setMaterial(Material material) {
-    this.material = material;
-  }
-
   public M3d getColor() {
     return material.getColor();
+  }
+
+  public MaterialPrimitive setMaterial(Material material) {
+    this.material = material;
+    return this;
   }
 
   public MaterialPrimitive setColor(M3d color) {

@@ -60,6 +60,7 @@ Mouse      | Spin around the origin
 `PageDown` | Zoom out
 `1`        | Reset to looking along the Z axis
 `2`        | Reset to looking along the Y axis
+`3`        | Reset to looking along the X axis
 `Ctrl+P`   | Capture screenshot
 
 `HierarchyDemo` also accepts the following keys:

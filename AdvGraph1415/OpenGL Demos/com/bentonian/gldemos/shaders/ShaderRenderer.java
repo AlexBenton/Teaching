@@ -1,14 +1,12 @@
 package com.bentonian.gldemos.shaders;
 
-import static com.bentonian.framework.ui.ShaderUtil.testGlError;
-
 import org.lwjgl.opengl.GL20;
 
 import com.bentonian.framework.ui.ShaderUtil;
 
 
 public class ShaderRenderer {
-  
+
   private final String vertexShader;
   private final String fragmentShader;
 
@@ -22,11 +20,10 @@ public class ShaderRenderer {
   protected void init(ShaderDemo shaderDemo) {
     if (shaderProgram == -1) {
       shaderProgram = ShaderUtil.compileProgram(
-          ShaderUtil.loadShader(GL20.GL_VERTEX_SHADER, ShaderRenderer.class, vertexShader), 
+          ShaderUtil.loadShader(GL20.GL_VERTEX_SHADER, ShaderRenderer.class, vertexShader),
           ShaderUtil.loadShader(GL20.GL_FRAGMENT_SHADER, ShaderRenderer.class, fragmentShader));
     }
     shaderDemo.useProgram(shaderProgram);
-    testGlError();
   }
 
   public void disable(ShaderDemo shaderDemo) {
@@ -34,5 +31,9 @@ public class ShaderRenderer {
 
   public void render(ShaderDemo shaderDemo, ShaderModel model) {
     model.getGeometry().render(shaderDemo);
+  }
+
+  public String getName() {
+    return vertexShader.substring(0, vertexShader.indexOf("."));
   }
 }

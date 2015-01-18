@@ -9,7 +9,6 @@ import org.lwjgl.input.Keyboard;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.M4x4;
 import com.bentonian.framework.mesh.primitive.MeshPrimitive;
-import com.bentonian.framework.scene.CameraAnimator;
 import com.bentonian.framework.ui.DemoApp;
 
 public class ShaderDemo extends DemoApp {
@@ -18,7 +17,9 @@ public class ShaderDemo extends DemoApp {
 
   private static final ShaderRenderer[] shaders = {
     new ShaderRenderer("basic.vsh", "basic.fsh"),
+    new ShaderRenderer("gouraud.vsh", "gouraud.fsh"),
     new ShaderRenderer("phong.vsh", "phong.fsh"),
+    new ShaderRenderer("procedural.vsh", "procedural.fsh"),
     new GoochRenderer(),
     new ShaderRenderer("lattice.vsh", "lattice.fsh"),
     new PingRenderer(),
@@ -35,6 +36,7 @@ public class ShaderDemo extends DemoApp {
 
   public ShaderDemo() {
     super("Shader demo");
+    this.height = this.width;
     this.nextShader = 0;
     this.model = ShaderModel.CUBE;
     setCameraDistance(CAMERA_DISTANCE);
@@ -61,7 +63,7 @@ public class ShaderDemo extends DemoApp {
       M3d pt = new M3d(1, 1, 1).normalized().times(CAMERA_DISTANCE);
       pt = M4x4.rotationMatrix(new M3d(0, 1, 0), 0.15).times(pt);
       pt = M4x4.rotationMatrix(getCamera().getLocalToParent().extract3x3().times(new M3d(1, 0, 0)), -0.15).times(pt);
-      cameraAnimator = new CameraAnimator(getCamera(), pt, pt.times(-1), new M3d(0, 1, 0), 1000);
+      animateCameraToPosition(pt);
       break;
     }
     case Keyboard.KEY_MINUS:
@@ -71,15 +73,21 @@ public class ShaderDemo extends DemoApp {
       nextShader = (currentShader + shaders.length + 1) % shaders.length;
       break;
     case Keyboard.KEY_E:
-      if (model.getGeometry() instanceof MeshPrimitive) {
-        ((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().setShowEdges(
-            !((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().getShowEdges());
+      for (ShaderModel shadeable : ShaderModel.values()) {
+        if (shadeable.getGeometry() instanceof MeshPrimitive) {
+          MeshPrimitive meshPrimitive = (MeshPrimitive) shadeable.getGeometry();
+          meshPrimitive.getFeaturesAccelerator().setShowEdges(
+              !meshPrimitive.getFeaturesAccelerator().getShowEdges());
+        }
       }
       break;
     case Keyboard.KEY_N:
-      if (model.getGeometry() instanceof MeshPrimitive) {
-        ((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().setShowNormals(
-            !((MeshPrimitive) model.getGeometry()).getFeaturesAccelerator().getShowNormals());
+      for (ShaderModel shadeable : ShaderModel.values()) {
+        if (shadeable.getGeometry() instanceof MeshPrimitive) {
+          MeshPrimitive meshPrimitive = (MeshPrimitive) shadeable.getGeometry();
+          meshPrimitive.getFeaturesAccelerator().setShowNormals(
+              !meshPrimitive.getFeaturesAccelerator().getShowNormals());
+        }
       }
       break;
     case Keyboard.KEY_LBRACKET:
@@ -114,6 +122,7 @@ public class ShaderDemo extends DemoApp {
       model.dispose();
       testGlError();
       shaders[currentShader].init(this);
+      setTitle("Shader Demo - " + shaders[currentShader].getName());
       testGlError();
       nextShader = -1;
     }
@@ -123,7 +132,7 @@ public class ShaderDemo extends DemoApp {
 
   @Override
   public void onMouseDrag(int x, int y) {
-    if (isControlDown()) {
+    if (isControlDown() && lastCapturedMousePosition != null) {
       int dx = x - lastCapturedMousePosition.x;
       int dy = y - lastCapturedMousePosition.y;
       lastCapturedMousePosition = new Point(x, y);

@@ -8,6 +8,7 @@ import static com.bentonian.framework.ui.ShaderUtil.validateLocation;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.Stack;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -24,15 +25,20 @@ import com.bentonian.framework.scene.Camera;
  */
 public class GLCanvas {
 
+  // Caution!  This 'constant' is lazy-initialized in the first call to initGl().
+  public static int DEFAULT_SHADER_PROGRAM = -1;
+
   protected final Camera camera;
   protected final MatrixStack projection;
   protected final MatrixStack modelStack;
 
   private int program;
+  private Stack<Integer> programStack;
 
   public GLCanvas() {
     this.modelStack = new MatrixStack();
     this.projection = new MatrixStack();
+    this.programStack = new Stack<Integer>();
     this.camera = new Camera();
 
     projection.peek().setData(M4x4.perspective(1));
@@ -41,12 +47,11 @@ public class GLCanvas {
   protected void initGl() {
     testGlError();
 
-    int vsName = loadShader(GL20.GL_VERTEX_SHADER, GLCanvas.class, "default.vsh");
-    int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, GLCanvas.class, "default.fsh");
-    int shader = compileProgram(vsName, fsName);
-    useProgram(shader);
+    if (DEFAULT_SHADER_PROGRAM == -1) {
+      DEFAULT_SHADER_PROGRAM = loadDefaultShaderProgram();
+    }
+    useProgram(DEFAULT_SHADER_PROGRAM);
 
-    testGlError();
     GL11.glClearColor(0.2f, 0.4f, 0.6f, 0.0f);
     GL11.glClearDepth(1.0f);
     GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -55,6 +60,7 @@ public class GLCanvas {
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+
     testGlError();
   }
 
@@ -138,9 +144,20 @@ public class GLCanvas {
   }
 
   public void useProgram(int program) {
-    this.program = program;
-    GL20.glUseProgram(program);
-    testGlError();
+    if (program != this.program) {
+      this.program = program;
+      GL20.glUseProgram(program);
+      testGlError();
+    }
+  }
+  
+  public void pushProgram(int program) {
+    programStack.push(this.program);
+    useProgram(program);
+  }
+
+  public void popProgram() {
+    useProgram(programStack.pop());
   }
 
   public int getProgram() {
@@ -218,5 +235,13 @@ public class GLCanvas {
     } else {
       clearGlError();
     }
+  }
+
+  private static int loadDefaultShaderProgram() {
+    int vsName = loadShader(GL20.GL_VERTEX_SHADER, GLCanvas.class, "default.vsh");
+    int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, GLCanvas.class, "default.fsh");
+    int program = compileProgram(vsName, fsName);
+    testGlError();
+    return program;
   }
 }

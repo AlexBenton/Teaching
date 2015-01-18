@@ -35,7 +35,10 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
   }
 
   public void setRenderStyle(RenderStyle renderStyle) {
-    this.renderStyle = renderStyle;
+    if (this.renderStyle != renderStyle) {
+      this.renderStyle = renderStyle;
+      dispose();
+    }
   }
 
   public RenderStyle getRenderStyle() {

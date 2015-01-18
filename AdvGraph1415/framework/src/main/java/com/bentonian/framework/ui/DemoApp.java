@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 public class DemoApp extends GLWindowedApp {
 
   protected Point lastCapturedMousePosition;
+  protected boolean mouseDownCaptured;
   protected Set<Integer> keysHeldDown;
   protected long lastFrameStartMillis;
   protected CameraAnimator cameraAnimator;
@@ -54,6 +55,14 @@ public class DemoApp extends GLWindowedApp {
     M3d delta = getCamera().getPosition().normalized().times(d).minus(viewpoint);
     getCamera().translate(delta);
   }
+  
+  public void animateCameraToPosition(M3d dest) {
+    animateCameraToPosition(dest, new M3d(0, 1, 0));
+  }
+
+  public void animateCameraToPosition(M3d dest, M3d up) {
+    cameraAnimator = new CameraAnimator(getCamera(), dest, dest.normalized().times(-1), up, 1000);
+  }
 
   @Override
   public void onKeyDown(int key) {
@@ -66,13 +75,13 @@ public class DemoApp extends GLWindowedApp {
       super.onKeyDown(key);
       break;
     case Keyboard.KEY_1:
-      cameraAnimator = new CameraAnimator(getCamera(), new M3d(0, 0, sign * d), new M3d(0, 0, -sign), new M3d(0, 1, 0), 1000);
+      animateCameraToPosition(new M3d(0, 0, sign * d));
       break;
     case Keyboard.KEY_2:
-      cameraAnimator = new CameraAnimator(getCamera(), new M3d(0, sign * d, 0), new M3d(0, -sign, 0), new M3d(0, 0, -sign), 1000);
+      animateCameraToPosition(new M3d(0, sign * d, 0), new M3d(0, 0, -sign));
       break;
     case Keyboard.KEY_3:
-      cameraAnimator = new CameraAnimator(getCamera(), new M3d(sign * d, 0, 0), new M3d(-sign, 0, 0), new M3d(0, 1, 0), 1000);
+      animateCameraToPosition(new M3d(sign * d, 0, 0));
       break;
     case Keyboard.KEY_P:
       if (isControlDown()) {
@@ -134,16 +143,18 @@ public class DemoApp extends GLWindowedApp {
   @Override
   protected void onMouseDown(int x, int y, int mouseButton) {
     lastCapturedMousePosition = new Point(x, y);
+    mouseDownCaptured = true;
   }
 
   @Override
   protected void onMouseUp(int x, int y, int mouseButton) {
     super.onMouseUp(x, y, mouseButton);
+    mouseDownCaptured = false;
   }
 
   @Override
   protected void onMouseDrag(int x, int y) {
-    if (lastCapturedMousePosition != null) {
+    if (mouseDownCaptured) {
       double distanceFromOrigin = getCameraDistance();
       int dx = x - lastCapturedMousePosition.x;
       int dy = y - lastCapturedMousePosition.y;

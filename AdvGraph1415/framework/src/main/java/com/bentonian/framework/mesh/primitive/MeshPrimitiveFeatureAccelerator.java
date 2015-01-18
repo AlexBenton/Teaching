@@ -55,6 +55,8 @@ public class MeshPrimitiveFeatureAccelerator {
   }
 
   public void render(GLCanvas glCanvas) {
+    glCanvas.pushProgram(GLCanvas.DEFAULT_SHADER_PROGRAM);
+    
     if (!vao.isCompiled()) {
       for (Face face : mesh) {
         if (showEdges) {
@@ -80,6 +82,8 @@ public class MeshPrimitiveFeatureAccelerator {
       }
     }
     vao.render(glCanvas);
+    
+    glCanvas.popProgram();
   }
   
   public void dispose() {
