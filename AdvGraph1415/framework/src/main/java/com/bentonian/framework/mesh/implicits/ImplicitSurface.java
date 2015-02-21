@@ -1,6 +1,5 @@
 package com.bentonian.framework.mesh.implicits;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,15 +10,16 @@ import com.bentonian.framework.material.HasColor;
 import com.bentonian.framework.material.Material;
 import com.bentonian.framework.material.MaterialPrimitive;
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.math.M3dPair;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.implicits.Octree.State;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
+import com.bentonian.framework.ui.Vertex;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -32,13 +32,13 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
   private static final M3d DX = new M3d(DELTA, 0, 0);
   private static final M3d DY = new M3d(0, DELTA, 0);
   private static final M3d DZ = new M3d(0, 0, DELTA);
+  private static final long REFINE_TIME_PER_FRAME_MILLIS = 250;
 
-  class EdgeMap extends HashMap<M3dPair, OctTreeEdge> { }
-  class Sample {
-    double force;
-    M3d color;
-    public Sample(double force, M3d color) { this.force = force; this.color = color; }
-  }
+  private final LinkedList<Octree> inProgress;
+  private final List<Octree> almostFinished;
+  private final List<Octree> finished;
+  private final List<Octree> roots;
+  private final WeakHashMap<M3d, Sample> samples;
 
   private double cutoff = 0.5;
   private int targetLevel = 4;
@@ -46,20 +46,16 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
   private double scale;
   private int fx, fy, fz;
   private List<Force> forces = new LinkedList<Force>();
-  private WeakHashMap<M3d, Sample> samples;
-  private LinkedList<Octree> inProgress;
-  private Set<Octree> finished;
-  private LinkedList<Octree> roots;
-  private EdgeMap[] edgeMapArray;
 
+  private boolean showFaces = true;
   private boolean showEdges = false;
   private boolean showNormals = true;
   private boolean showBoxes = false;
   private boolean blendColors = false;
-  
-  private GLVertexData edgesVao = GLVertexData.beginLineTriangles();
-  private GLVertexData boxesVao = GLVertexData.beginLineSegments();
-  private GLVertexData surfaceVao = GLVertexData.beginTriangles();
+
+  private final GLVertexData edgesVao = GLVertexData.beginLineTriangles();
+  private final GLVertexData boxesVao = GLVertexData.beginLineSegments();
+  private final GLVertexData surfaceVao = GLVertexData.beginTriangles();
 
   ////////////////////////////////////////
 
@@ -70,29 +66,28 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
 
     this.min = min;
     this.targetLevel = DEFAULT_TARGET_LEVEL;
-    if (dx < dy && dx < dz) {
-      scale = dx;
-    } else if (dy < dx && dy < dz) {
-      scale = dy;
-    } else {
-      scale = dz;
-    }
-    fx = (int)Math.ceil(dx / scale);
-    fy = (int)Math.ceil(dy / scale);
-    fz = (int)Math.ceil(dz / scale);
+    this.inProgress = Lists.newLinkedList();
+    this.almostFinished = Lists.newArrayList();
+    this.finished = Lists.newLinkedList();
+    this.roots = Lists.newLinkedList();
+    this.samples = new WeakHashMap<M3d, Sample>();
+    this.scale = (dx < dy && dx < dz) ? dx : (dy < dx && dy < dz) ? dy : dz;
+    this.fx = (int) Math.ceil(dx / scale);
+    this.fy = (int) Math.ceil(dy / scale);
+    this.fz = (int) Math.ceil(dz / scale);
 
     reset();
   }
 
-  public void reset() {
-    M3d[][][] coords = new M3d[fx+1][fy+1][fz+1];
+  public ImplicitSurface reset() {
+    Sample[][][] initialSamples = new Sample[fx+1][fy+1][fz+1];
     Set<M3d> targets = Sets.newHashSet();
 
-    samples = new WeakHashMap<M3d, Sample>();
-    inProgress = Lists.newLinkedList();
-    finished = Sets.newHashSet();
-    roots = new LinkedList<Octree>();
-    edgeMapArray = new EdgeMap[10];
+    samples.clear();
+    inProgress.clear();
+    almostFinished.clear();
+    finished.clear();
+    roots.clear();
     for (Force f : forces) {
       if (f instanceof M3d) {
         targets.add((M3d)f);
@@ -101,28 +96,36 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
     for (int x = 0; x <= fx; x++) {
       for (int y = 0; y <= fy; y++) {
         for (int z = 0; z <= fz; z++) {
-          coords[x][y][z] = new M3d(
+          initialSamples[x][y][z] = sumForces(new M3d(
               min.getX() + x * scale,
               min.getY() + y * scale,
-              min.getZ() + z * scale);
+              min.getZ() + z * scale));
         }
       }
     }
     for (int x = 0; x < fx; x++) {
       for (int y = 0; y < fy; y++) {
         for (int z = 0; z < fz; z++) {
-          inProgress.add(new Octree(this, 0, coords, x, y, z, targets));
+          scheduleRefinement(new Octree(this, null, 0, initialSamples, x, y, z, targets));
         }
       }
     }
     roots.addAll(inProgress);
 
-    edgesVao.dispose();
-    boxesVao.dispose();
-    surfaceVao.dispose();
-    edgesVao = GLVertexData.beginLineTriangles();
-    boxesVao = GLVertexData.beginLineSegments();
-    surfaceVao = GLVertexData.beginTriangles();
+    dispose();
+    return this;
+  }
+
+  private void scheduleRefinement(Octree octree) {
+    inProgress.addLast(octree);
+    octree.setState(State.SCHEDULED_FOR_REFINEMENT);
+  }
+
+  public ImplicitSurface refineCompletely() {
+    while (!inProgress.isEmpty()) {
+      refine();
+    }
+    return this;
   }
 
   public double getCutoff() {
@@ -139,27 +142,49 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
 
   public ImplicitSurface setTargetLevel(int targetLevel) {
     this.targetLevel = targetLevel;
-    reset();
+    resetInProgressAndFinished();
     return this;
   }
 
-  public List<Octree> getRoots() {
-    return roots;
+  public int getNumPolys() {
+    int n = 0;
+    for (Octree octree : getRenderableOctrees()) {
+      n += octree.getPolygonList().size();
+    }
+    return n;
   }
 
-  public List<Octree> getInProgress() {
-    return inProgress;
+  public ImplicitSurface addForce(Force f) {
+    forces.add(f);
+    return this;
   }
 
-  public Set<Octree> getFinished() {
-    return finished;
+  private void refine() {
+    long timeout = System.currentTimeMillis() + REFINE_TIME_PER_FRAME_MILLIS;
+    int numDone = finished.size();
+
+    while (!inProgress.isEmpty() && System.currentTimeMillis() < timeout) {
+      refineNext();
+    }
+
+    if (inProgress.isEmpty() && !almostFinished.isEmpty()) {
+      checkForMissedFaces();
+    }
+
+    if (numDone != finished.size()) {
+      dispose();
+    }
   }
 
-  public Sample sumForces(M3d v) {
+  boolean isHot(Sample sample) {
+    return sample.force > cutoff;
+  }
+
+  Sample sumForces(M3d v) {
     return sumForces(v, true);
   }
 
-  public Sample sumForcesUncached(M3d v) {
+  private Sample sumForcesUncached(M3d v) {
     return sumForces(v, false);
   }
 
@@ -168,9 +193,9 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
     double summedWeight = 0;
     M3d summedColor = new M3d();
     M3d color;
-    Sample sample;
+    Sample sample = samples.get(v);
 
-    if (!samples.containsKey(v)) {
+    if (sample == null) {
       for (Force f : forces) {
         double force = f.F(v);
         double weight = Math.abs(force - cutoff);
@@ -180,153 +205,82 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
           summedColor = summedColor.plus(((HasColor) f).getColor().times(weight));
         }
       }
-      color = (summedWeight > 0) ? summedColor.times(1/summedWeight) : WHITE;
-      sample = new Sample(sum, color);
+      color = (summedWeight > 0) ? summedColor.times(1 / summedWeight) : WHITE;
+      sample = new Sample(v, sum, color);
       if (updateCache) {
         samples.put(v, sample);
       }
-    }
-    else {
-      sample = samples.get(v);
     }
 
     return sample;
   }
 
-  boolean isHot(M3d v) {
-    return sumForces(v).force > cutoff;
-  }
+  private void refineNext() {
+    Octree octree = inProgress.remove();
 
-  public ImplicitSurface addForce(Force f) {
-    forces.add(f);
-    return this;
-  }
-
-  public void refine() {
-    while (!inProgress.isEmpty()) {
-      Octree T = inProgress.remove();
-      Octree[][][] children;
-
-      T.refine();
-      children = T.getChildOctrees();
-      if (children != null) {
-        for (int i = 0; i < 2; i++) {
-          for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 2; k++) {
-              Octree t = children[i][j][k];
-
-              if (t != null) {
-                if (t.getLevel() < targetLevel) {
-                  inProgress.addLast(t);
-                }
-                else if (t.hasPolygons()){
-                  finished.add(t);
-                }
-              }
-            }
+    octree.refine();
+    octree.setState(State.REFINED);
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
+        for (int k = 0; k < 2; k++) {
+          Octree child = octree.getChildOctrees()[i][j][k];
+          if (child.getLevel() < targetLevel && child.isInteresting()) {
+            scheduleRefinement(child);
+          } else if (child.hasPolygons()) {
+            finished.add(child);
+            almostFinished.add(child);
+            child.setState(State.SCHEDULED_FOR_MISSED_FACES_CHECK);
           }
         }
       }
     }
+  }
 
-    HashMap<M3dPair, OctTreeEdge> map = getEdgeMap(getTargetLevel());
-    for (OctTreeEdge edge : map.values()) {
-      if (edge.isInteresting()) {
-        if (edge.size() > 0 && edge.size() < 4) {
-          for (Octree o : edge) {
-            for (int i = 0; i < 6; i++) {
-              if (o.hasInterestingFace(i, edge)) {
-                M3d pt = o.getPointJustBeyondFace(i);
-                Octree op = findUniqueContainer(pt);
+  private void checkForMissedFaces() {
+    for (Octree octree : almostFinished) {
+      octree.setState(State.FINISHED);
+      for (int face = 0; face < 6; face++) {
+        if (octree.hasInterestingFace(face)) {
+          M3d pt = octree.getPointJustBeyondFace(face);
+          Octree op = findContainer(octree, pt);
 
-                if ((op != null) && (op.getLevel() < targetLevel)) {
-                  op.addTarget(pt);
-                  inProgress.add(op);
-                }
-              }
-            }
+          if (op != null 
+              && op.getLevel() < octree.getLevel() 
+              && !op.getState().equals(State.SCHEDULED_FOR_REFINEMENT)) {
+            op.addTarget(pt);
+            scheduleRefinement(op);
           }
         }
       }
     }
-
-    if (!inProgress.isEmpty()) {
-      refine();
-    }
+    almostFinished.clear();
   }
 
-  private boolean addInterpolants(OctTreeEdge edge) {
-    M3d a = edge.getEndPt(0);
-    M3d b = edge.getEndPt(1);
-    Sample ta = sumForces(a);
-    Sample tb = sumForces(b);
-    Vertex c;
-    double t;
-
-    if (ta.force <= cutoff && tb.force > cutoff) {
-      t = (cutoff-ta.force) / (tb.force-ta.force);
-      c = new Vertex(a.plus(b.minus(a).times(t)), ta.color.plus(tb.color.minus(ta.color).times(t)));
-      edge.setCrossingData(c, a.minus(b).normalized());
-      return true;
-    } else if (tb.force <= cutoff && ta.force > cutoff) {
-      t = (cutoff-tb.force) / (ta.force-tb.force);
-      c = new Vertex(b.plus(a.minus(b).times(t)), tb.color.plus(ta.color.minus(tb.color).times(t)));
-      edge.setCrossingData(c, b.minus(a).normalized());
-      return true;
-    }
-    return false;
-  }
-
-  OctTreeEdge getEdge(int level, M3d a, M3d b, M3d precomputedMidPt) {
-    EdgeMap map = getEdgeMap(level);
-    M3dPair pair = new M3dPair(a,b);
-    OctTreeEdge edge = map.get(pair);
-
-    if (edge == null) {
-      edge = new OctTreeEdge(null, a, b, precomputedMidPt);
-      addInterpolants(edge);
-      map.put(pair, edge);
-    }
-    return edge;
-  }
-
-  M3d subdivideEdge(int level, M3d a, M3d b, M3d precomputedMidPt) {
-    OctTreeEdge edge = getEdge(level, a, b, precomputedMidPt);
-
-    for (int i = 0; i<2; i++) {
-      if (edge.getChild(i) == null) {
-        edge.setChild(i, getEdge(level + 1, edge.getEndPt(i), edge.getMidPt(), null));
+  private Octree findContainer(Octree cousin, M3d pt) {
+    Octree ancestor = cousin.getParent();
+    while (ancestor != null) {
+      if (ancestor.encloses(pt)) {
+        return findContainerInChildren(pt, ancestor);
+      } else {
+        ancestor = ancestor.getParent();
       }
     }
-    return edge.getMidPt();
+    return findContainerFromAllRoots(pt);
   }
 
-  M3d subdivideFace(int level, M3d a, M3d b, M3d alpha, M3d beta) {
-    return subdivideEdge(level, alpha, beta, subdivideEdge(level, a, b, null));
-  }
-
-  M3d subdivideCube(int level, M3d a, M3d b, M3d alpha, M3d beta, M3d alef, M3d bet) {
-    return subdivideEdge(level, alef, bet, subdivideEdge(level, alpha, beta, subdivideEdge(level, a, b, null)));
-  }
-
-  private EdgeMap getEdgeMap(int level) {
-    if (edgeMapArray.length <= level) {
-      EdgeMap[] temp = edgeMapArray;
-
-      edgeMapArray = new EdgeMap[level + 5];
-      for (int i = 0; i < temp.length; i++) {
-        edgeMapArray[i] = temp[i];
+  private Octree findContainerFromAllRoots(M3d pt) {
+    for (Octree root : roots) {
+      if (root.encloses(pt)) {
+        Octree container = findContainerInChildren(pt, root);
+        if (container != null) {
+          return container;
+        }
       }
     }
-    if (edgeMapArray[level] == null) {
-      edgeMapArray[level] = new EdgeMap();
-    }
-    return edgeMapArray[level];
+    return null;
   }
 
-  private List<Octree> findContainer(M3d pt, Octree parent) {
-    List<Octree> ret = new LinkedList<Octree>();
-    boolean addedChild = false;
+  private Octree findContainerInChildren(M3d pt, Octree parent) {
     Octree[][][] kids = parent.getChildOctrees();
 
     if (parent.encloses(pt)) {
@@ -335,11 +289,9 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
           for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 2; k++) {
               if (kids[i][j][k] != null) {
-                List<Octree> containingKids = findContainer(pt, kids[i][j][k]);
-
-                if (!containingKids.isEmpty()) {
-                  ret.addAll(containingKids);
-                  addedChild = true;
+                Octree container = findContainerInChildren(pt, kids[i][j][k]);
+                if (container != null) {
+                  return container;
                 }
               }
             }
@@ -347,64 +299,46 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
         }
       }
 
-      if (!addedChild) {
-        ret.add(parent);
-      }
+      return parent;
     }
 
-    return ret;
-  }
-
-  private List<Octree> findContainer(M3d pt) {
-    List<Octree> ret = new LinkedList<Octree>();
-
-    for (Octree root : roots) {
-      if (root.encloses(pt)) {
-        ret.addAll(findContainer(pt, root));
-      }
-    }
-    return ret;
-  }
-
-  private Octree findUniqueContainer(M3d pt) {
-    List<Octree> containers = findContainer(pt);
-
-    if (containers.size()==1) {
-      return containers.get(0);
-    } else {
-      return null;
-    }
+    return null;
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
   @Override
-  public synchronized void renderLocal(GLCanvas canvas) {
-
+  public void render(GLCanvas glCanvas) {
     refine();
+    super.render(glCanvas);
+  }
 
+  @Override
+  public synchronized void renderLocal(GLCanvas canvas) {
     if (showEdges) {
       if (!edgesVao.isCompiled()) {
         edgesVao.color(new M3d(0,0,0));
-        for (Octree octree : getFinished()) {
-          octree.addEdges(edgesVao);
+        for (Octree octree : getRenderableOctrees()) {
+          octree.renderEdges(edgesVao);
         }
       }
       edgesVao.render(canvas);
     }
 
-    if (!surfaceVao.isCompiled()) {
-      surfaceVao.color(getMaterial().getColor());
-      for (Octree octree : getFinished()) {
-        octree.addFaces(surfaceVao, showNormals, blendColors);
+    if (showFaces) {
+      if (!surfaceVao.isCompiled()) {
+        surfaceVao.color(getMaterial().getColor());
+        for (Octree octree : getRenderableOctrees()) {
+          octree.renderFaces(surfaceVao, showNormals, blendColors);
+        }
       }
+      surfaceVao.render(canvas);
     }
-    surfaceVao.render(canvas);
 
     if (showBoxes) {
       if (!boxesVao.isCompiled()) {
         boxesVao.color(new M3d(0,0,0));
-        for (Octree octree : getFinished()) {
+        for (Octree octree : getRenderableOctrees()) {
           for (int x = 0; x<2; x++) {
             for (int y = 0; y<2; y++) {
               for (int z = 0; z<2; z++) {
@@ -428,20 +362,26 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
       boxesVao.render(canvas);
     }
   }
-  
+
   public Mesh getMesh() {
     Mesh mesh = new Mesh();
     Map<Vertex, Vertex> vertices = Maps.newHashMap();
-    for (Octree octree : getFinished()) {
+    for (Octree octree : getRenderableOctrees()) {
       for (Triangle poly : octree.getPolygonList()) {
         if (!vertices.containsKey(poly.a)) { vertices.put(poly.a, new Vertex(poly.a)); }
         if (!vertices.containsKey(poly.b)) { vertices.put(poly.b, new Vertex(poly.b)); }
         if (!vertices.containsKey(poly.c)) { vertices.put(poly.c, new Vertex(poly.c)); }
-        mesh.add(new Face(vertices.get(poly.a), vertices.get(poly.b), vertices.get(poly.c)));
+        mesh.add(new MeshFace(vertices.get(poly.a), vertices.get(poly.b), vertices.get(poly.c)));
       }
     }
     mesh.computeAllNormals();
     return mesh;
+  }
+
+  public void dispose() {
+    edgesVao.dispose();
+    boxesVao.dispose();
+    surfaceVao.dispose();
   }
 
   public boolean getShowNormals() {
@@ -450,6 +390,15 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
 
   public ImplicitSurface setShowNormals(boolean showNormals) {
     this.showNormals = showNormals;
+    return this;
+  }
+
+  public boolean getShowFaces() {
+    return showFaces;
+  }
+
+  public ImplicitSurface setShowFaces(boolean showFaces) {
+    this.showFaces = showFaces;
     return this;
   }
 
@@ -480,24 +429,50 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
     return this;
   }
 
-  public synchronized void resetAndRefine() {
-    reset();
-    refine();
-  }
-
   @Override
   public synchronized RayIntersections traceLocal(Ray ray) {
     RayIntersections hits = new RayIntersections();
 
-    for (Octree octree : getRoots()) {
+    for (Octree octree : roots) {
       traceOctree(octree, ray, hits);
     }
     return hits;
   }
 
+  private void resetInProgressAndFinished() {
+    inProgress.clear();
+    almostFinished.clear();
+    finished.clear();
+    for (Octree octree : roots) {
+      udpateInProgressAndFinished(octree);
+    }
+  }
+
+  private void udpateInProgressAndFinished(Octree octree) {
+    if (octree.getLevel() < targetLevel) {
+      if (octree.getChildOctrees() == null) {
+        inProgress.add(octree);
+        octree.setState(State.SCHEDULED_FOR_REFINEMENT);
+      } else {
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+              Octree child = octree.getChildOctrees()[i][j][k];
+              if (child != null) {
+                udpateInProgressAndFinished(child);
+              }
+            }
+          }
+        }
+      }
+    } else if (octree.getLevel() == targetLevel) {
+      finished.add(octree);
+    }
+  }
+
   private void traceOctree(Octree octree, Ray ray, RayIntersections hits) {
     if (ray.intersectsCube(octree.getMin(), octree.getMax())) {
-      if (!octree.hasPolygons()) {
+      if (octree.getLevel() < targetLevel) {
         if (octree.getChildOctrees() != null) {
           for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -530,5 +505,9 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
         }
       }
     }
+  }
+
+  private Iterable<Octree> getRenderableOctrees() {
+    return Iterables.concat(inProgress, finished);
   }
 }

@@ -28,6 +28,10 @@ public class PrimitiveCollection extends Primitive {
     primitives.remove(sceneElement);
     return sceneElement;
   }
+  
+  public boolean isEmpty() {
+    return primitives.isEmpty();
+  }
 
   public List<Primitive> getPrimitives() {
     return primitives;

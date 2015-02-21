@@ -2,8 +2,6 @@ package com.bentonian.framework.ui;
 
 import static com.bentonian.framework.ui.ShaderUtil.testGlError;
 
-import java.util.List;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -17,11 +15,12 @@ import org.lwjgl.opengl.PixelFormat;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.M4x4;
 import com.bentonian.framework.math.Ray;
+import com.bentonian.framework.math.RayIntersectionList;
 import com.bentonian.framework.math.RayIntersections;
 import com.bentonian.framework.raytrace.engine.RayTracerEngine;
 import com.bentonian.framework.scene.Primitive;
+import com.bentonian.framework.scene.PrimitiveCollection;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class GLWindowedCanvas extends GLCanvas {
 
@@ -32,7 +31,9 @@ public class GLWindowedCanvas extends GLCanvas {
   protected boolean isRunning = false;
 
   private GLContext context = new GLContext();
-  private List<MouseEventHandler> mouseHandlers = Lists.newArrayList();
+  private PrimitiveCollection mouseHandlers = new PrimitiveCollection();
+  private MouseEventHandler currentMouseCaptureHandler;
+  private MouseEventHandler currentMouseOverHandler;
 
   @Override
   protected void initGl() {
@@ -82,20 +83,32 @@ public class GLWindowedCanvas extends GLCanvas {
     Display.update();
   }
   
-  public void registerMouseHandler(MouseEventHandler handler) {
+  /**
+   * Note that we require that any handler must extend both Primitve (for hit testing)
+   * and MouseEventHandler (for event handling).
+   */
+  public <T extends Primitive & MouseEventHandler> void registerMouseHandler(T handler) {
     mouseHandlers.add(handler);
   }
 
-  public void removeMouseHandler(MouseEventHandler handler) {
+  public <T extends Primitive & MouseEventHandler> void removeMouseHandler(T handler) {
     mouseHandlers.remove(handler);
   }
 
-  protected int getWidth() {
+  public int getWidth() {
     return width;
   }
 
-  protected int getHeight() {
+  public int getHeight() {
     return height;
+  }
+
+  public int getLeft() {
+    return left;
+  }
+
+  public int getTop() {
+    return top;
   }
 
   protected void pollInput() {
@@ -135,51 +148,52 @@ public class GLWindowedCanvas extends GLCanvas {
   }
 
   private void deliverOnMouseDown(int x, int y, int mouseButton) {
-    if (mouseButton == 0 && !mouseHandlers.isEmpty()) {
-      Ray ray = getCameraRay(x, y);
-      for (MouseEventHandler handler : mouseHandlers) {
-        if (handler.onMouseDown(getCamera(), ray)) {
-          return;
-        }
-      }
+    Ray ray = getCameraRay(x, y);
+    RayIntersectionList hits = RayTracerEngine.traceScene(mouseHandlers, ray).sorted();
+    if (!hits.isEmpty()) {
+      currentMouseCaptureHandler = (MouseEventHandler) hits.getHead().primitive;
+      currentMouseCaptureHandler.onMouseDown(getCamera(), ray);
+    } else {
+      onMouseDown(x, y, mouseButton);
     }
-    onMouseDown(x, y, mouseButton);
   }
 
   private void deliverOnMouseUp(int x, int y, int mouseButton) {
-    if (mouseButton == 0 && !mouseHandlers.isEmpty()) {
+    if (mouseButton == 0 && currentMouseCaptureHandler != null) {
       Ray ray = getCameraRay(x, y);
-      for (MouseEventHandler handler : mouseHandlers) {
-        if (handler.onMouseUp(getCamera(), ray)) {
-          return;
-        }
-      }
+      currentMouseCaptureHandler.onMouseUp(getCamera(), ray);
+      currentMouseCaptureHandler = null;
+    } else {
+      onMouseUp(x, y, mouseButton);
     }
-    onMouseUp(x, y, mouseButton);
   }
 
   private void deliverOnMouseMove(int x, int y) {
-    if (!mouseHandlers.isEmpty()) {
-      Ray ray = getCameraRay(x, y);
-      for (MouseEventHandler handler : mouseHandlers) {
-        if (handler.onMouseMove(getCamera(), ray)) {
-          return;
-        }
+    Ray ray = getCameraRay(x, y);
+    MouseEventHandler hit = null;
+    RayIntersectionList hits = RayTracerEngine.traceScene(mouseHandlers, ray).sorted();
+    if (!hits.isEmpty()) {
+      hit = (MouseEventHandler) hits.getHead().primitive;
+    }
+    if (currentMouseOverHandler != hit) {
+      if (currentMouseOverHandler != null) {
+        currentMouseOverHandler.onMouseOut(camera, ray);
       }
+      currentMouseOverHandler = hit;
+    }
+    if (currentMouseOverHandler != null) {
+      currentMouseOverHandler.onMouseOver(camera, ray);
     }
     onMouseMove(x, y);
   }
 
   private void deliverOnMouseDrag(int x, int y) {
-    if (!mouseHandlers.isEmpty()) {
+    if (currentMouseCaptureHandler != null) {
       Ray ray = getCameraRay(x, y);
-      for (MouseEventHandler handler : mouseHandlers) {
-        if (handler.onMouseDrag(getCamera(), ray)) {
-          return;
-        }
-      }
+      currentMouseCaptureHandler.onMouseDrag(getCamera(), ray);
+    } else {
+      onMouseDrag(x, y);
     }
-    onMouseDrag(x, y);
   }
   
   protected void onKeyDown(int key) {

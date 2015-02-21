@@ -1,17 +1,16 @@
 package com.bentonian.framework.raytrace.engine;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.scene.PrimitiveCollection;
+import com.google.common.collect.Lists;
 
 public class Scene extends PrimitiveCollection {
   
-  private List<M3d> lights;
+  private List<M3d> lights = Lists.newArrayList();
   
   public Scene() {
-    lights = new ArrayList<M3d>();
   }
   
   public List<M3d> getLights() {

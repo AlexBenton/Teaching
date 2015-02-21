@@ -1,10 +1,10 @@
 package com.bentonian.framework.mesh.primitive;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Edge;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshEdge;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
 import com.bentonian.framework.ui.GLVertexData.Mode;
@@ -58,12 +58,12 @@ public class MeshPrimitiveFeatureAccelerator {
     glCanvas.pushProgram(GLCanvas.DEFAULT_SHADER_PROGRAM);
     
     if (!vao.isCompiled()) {
-      for (Face face : mesh) {
+      for (MeshFace face : mesh) {
         if (showEdges) {
           for (int i = 0; i <= face.size(); i++) {
-            Vertex A = face.getVertex(i);
-            Vertex B = face.getVertex(i + 1);
-            Edge e = new Edge(A, B);
+            MeshVertex A = face.getVertex(i);
+            MeshVertex B = face.getVertex(i + 1);
+            MeshEdge e = new MeshEdge(A, B);
             vao.color(e.isBoundaryEdge() ? RED : edgeColor);
             vao.vertex(A);
             vao.vertex(B);

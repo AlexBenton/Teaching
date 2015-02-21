@@ -5,9 +5,9 @@ import java.io.FileWriter;
 import java.io.InputStream;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.ui.Vertex;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
@@ -62,7 +62,7 @@ public class OFFUtil {
         int index = Integer.valueOf(tok);
         faceVerts[j] = verts[index];
       }
-      mesh.add(new Face(faceVerts));
+      mesh.add(new MeshFace(faceVerts));
     }
 
     mesh.computeAllNormals();
@@ -83,7 +83,7 @@ public class OFFUtil {
         Vertex v = indices.inverse().get(i);
         out.write(((float) v.getX()) + " " + ((float) v.getY()) + " " + ((float) v.getZ()) + "\n");
       }
-      for (Face f : mesh) {
+      for (MeshFace f : mesh) {
         out.write(f.size() + " ");
         out.write(Joiner.on(" ").join(FluentIterable.from(f).transform(
             new Function<Vertex, Integer>() { 

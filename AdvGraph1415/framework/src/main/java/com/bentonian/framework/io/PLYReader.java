@@ -3,9 +3,9 @@ package com.bentonian.framework.io;
 import java.io.InputStream;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.ui.Vertex;
 import com.google.common.base.Joiner;
 
 public class PLYReader {
@@ -75,7 +75,7 @@ public class PLYReader {
       for (int j = 0; j < n; j++) {
         f[j] = verts[Integer.valueOf(tokie.next(' '))];
       }
-      mesh.add(new Face(f));
+      mesh.add(new MeshFace(f));
     }
 
     mesh.computeAllNormals();

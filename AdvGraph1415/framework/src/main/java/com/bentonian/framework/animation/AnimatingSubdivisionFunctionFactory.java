@@ -1,9 +1,9 @@
 package com.bentonian.framework.animation;
 
-import com.bentonian.framework.mesh.Edge;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshEdge;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.mesh.subdivision.CatmullClark;
 import com.bentonian.framework.mesh.subdivision.DooSabin;
 import com.bentonian.framework.mesh.subdivision.Loop;
@@ -13,14 +13,14 @@ public class AnimatingSubdivisionFunctionFactory {
   public static DooSabin buildDooSabin(final AnimatedMeshPrimitive animationTarget) {
     return new DooSabin() {
       @Override
-      protected Vertex vertexRule(Face face, Vertex vertex) {
-        Vertex to = super.vertexRule(face, vertex);
+      protected MeshVertex vertexRule(MeshFace face, MeshVertex vertex) {
+        MeshVertex to = super.vertexRule(face, vertex);
         return animationTarget.addVertexAnimation(to, vertex, to);
       }
 
       @Override
-      protected Vertex boundaryRule(Vertex near, Vertex far) {
-        Vertex to = super.boundaryRule(near, far);
+      protected MeshVertex boundaryRule(MeshVertex near, MeshVertex far) {
+        MeshVertex to = super.boundaryRule(near, far);
         return animationTarget.addVertexAnimation(to, near, to);
       }
 
@@ -36,14 +36,14 @@ public class AnimatingSubdivisionFunctionFactory {
   public static Loop buildLoop(final AnimatedMeshPrimitive animationTarget) {
     return new Loop() {
       @Override
-      protected Vertex vertexRule(Vertex from) {
-        Vertex to = super.vertexRule(from);
+      protected MeshVertex vertexRule(MeshVertex from) {
+        MeshVertex to = super.vertexRule(from);
         return animationTarget.addVertexAnimation(to, from, to);
       }
 
       @Override
-      protected Vertex edgeRule(Edge from) {
-        Vertex to = super.edgeRule(from);
+      protected MeshVertex edgeRule(MeshEdge from) {
+        MeshVertex to = super.edgeRule(from);
         return animationTarget.addVertexAnimation(to, from, to);
       }
 
@@ -59,20 +59,20 @@ public class AnimatingSubdivisionFunctionFactory {
   public static CatmullClark buildCatmullClark(final AnimatedMeshPrimitive animationTarget) {
     return new CatmullClark() {
       @Override
-      protected Vertex vertexRule(Vertex from) {
-        Vertex to = super.vertexRule(from);
+      protected MeshVertex vertexRule(MeshVertex from) {
+        MeshVertex to = super.vertexRule(from);
         return animationTarget.addVertexAnimation(to, from, to);
       }
 
       @Override
-      protected Vertex edgeRule(Edge from) {
-        Vertex to = super.edgeRule(from);
+      protected MeshVertex edgeRule(MeshEdge from) {
+        MeshVertex to = super.edgeRule(from);
         return animationTarget.addVertexAnimation(to, from, to);
       }
 
       @Override
-      protected Vertex faceRule(Face from) {
-        Vertex to = super.faceRule(from);
+      protected MeshVertex faceRule(MeshFace from) {
+        MeshVertex to = super.faceRule(from);
         return animationTarget.addVertexAnimation(to, from, to);
       }
 

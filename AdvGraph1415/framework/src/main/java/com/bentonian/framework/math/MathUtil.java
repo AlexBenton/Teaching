@@ -239,4 +239,8 @@ public class MathUtil {
       return linePtOne.plus(D.times(t));
     }
   }
+  
+  public static M3d midPt(M3d a, M3d b) {
+    return new M3d((a.vec[0] + b.vec[0]) / 2, (a.vec[1] + b.vec[1]) / 2, (a.vec[2] + b.vec[2]) / 2);
+  }
 }

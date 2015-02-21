@@ -1,7 +1,7 @@
 package com.bentonian.framework.mesh.implicits;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.ui.Vertex;
 
 public class Triangle {
 

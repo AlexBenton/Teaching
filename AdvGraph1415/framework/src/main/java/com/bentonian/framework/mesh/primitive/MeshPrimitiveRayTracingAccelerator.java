@@ -11,7 +11,7 @@ import com.bentonian.framework.math.LineSegment;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.MathConstants;
 import com.bentonian.framework.math.Ray;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -20,7 +20,7 @@ public class MeshPrimitiveRayTracingAccelerator {
 
   private static final int DIM = 50;
 
-  private static class GridCell extends HashSet<Face> { }
+  private static class GridCell extends HashSet<MeshFace> { }
 
   private static class GridCellCoord { 
     int u, v, w;
@@ -50,7 +50,7 @@ public class MeshPrimitiveRayTracingAccelerator {
     mesh.getBounds(least, most);
     most.set(most.plus(new M3d(MathConstants.EPSILON, MathConstants.EPSILON, MathConstants.EPSILON)));
 
-    for (Face face : mesh) {
+    for (MeshFace face : mesh) {
       for (int i = 0; i < face.size() - 2; i++) {
         M3d A = face.get(0);
         M3d B = face.get(i + 1);
@@ -76,8 +76,8 @@ public class MeshPrimitiveRayTracingAccelerator {
     }
   }
 
-  public Set<Face> getFacesAlongRay(Ray ray) {
-    Set<Face> candidates = Sets.newHashSet();
+  public Set<MeshFace> getFacesAlongRay(Ray ray) {
+    Set<MeshFace> candidates = Sets.newHashSet();
     Set<GridCellCoord> visited = Sets.newHashSet();
     LinkedList<GridCellCoord> coords = Lists.newLinkedList();
     M3d pt = ray.at(ray.intersectsCubePrecisely(least, most) + MathConstants.EPSILON);

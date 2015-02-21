@@ -1,11 +1,11 @@
 package com.bentonian.framework.mesh.bezier;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
 import com.bentonian.framework.mesh.primitive.MeshPrimitive;
 import com.bentonian.framework.ui.GLCanvas;
+import com.bentonian.framework.ui.Vertex;
 
 public class BezierPatch extends MeshPrimitive {
 
@@ -36,7 +36,7 @@ public class BezierPatch extends MeshPrimitive {
           int[] offset = FACE_OFFSETS[k];
           faceVerts[k] = meshVertices[u + offset[0]][v + offset[1]];
         }
-        getMesh().add(new Face(faceVerts));
+        getMesh().add(new MeshFace(faceVerts));
       }
     }
   }

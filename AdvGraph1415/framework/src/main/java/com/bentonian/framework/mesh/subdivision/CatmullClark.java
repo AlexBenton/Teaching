@@ -3,45 +3,45 @@ package com.bentonian.framework.mesh.subdivision;
 import java.util.Map;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Edge;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshEdge;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.google.common.collect.Maps;
 
 public class CatmullClark implements SubdivisionFunction {
 
   @Override
   public Mesh apply(Mesh mesh) {
-    Map<Vertex, Vertex> vertexNextGen = Maps.newHashMap();
-    Map<Edge, Vertex> edgeNextGen = Maps.newHashMap();
+    Map<MeshVertex, MeshVertex> vertexNextGen = Maps.newHashMap();
+    Map<MeshEdge, MeshVertex> edgeNextGen = Maps.newHashMap();
     Mesh newMesh = new Mesh();
 
-    for (Vertex v : mesh.getVertices()) {
+    for (MeshVertex v : mesh.getVertices()) {
       vertexNextGen.put(v, vertexRule(v));
     }
 
-    for (Face face : mesh) {
+    for (MeshFace face : mesh) {
       for (int i = 0; i < face.size(); i++) {
-        Edge e = new Edge(face.getVertex(i), face.getVertex(i + 1));
+        MeshEdge e = new MeshEdge(face.getVertex(i), face.getVertex(i + 1));
         if (!edgeNextGen.containsKey(e)) {
           edgeNextGen.put(e, edgeRule(e));
         }
       }
     }
 
-    for (Face face : mesh) {
-      Vertex newFaceVertex = faceRule(face);
+    for (MeshFace face : mesh) {
+      MeshVertex newFaceVertex = faceRule(face);
 
       for (int i = 0; i < face.size(); i++) {
-        Vertex prev = face.getVertex(i - 1);
-        Vertex curr = face.getVertex(i);
-        Vertex next = face.getVertex(i + 1);
+        MeshVertex prev = face.getVertex(i - 1);
+        MeshVertex curr = face.getVertex(i);
+        MeshVertex next = face.getVertex(i + 1);
 
-        newMesh.add(new Face(
-            edgeNextGen.get(new Edge(curr, prev)),
+        newMesh.add(new MeshFace(
+            edgeNextGen.get(new MeshEdge(curr, prev)),
             vertexNextGen.get(curr),
-            edgeNextGen.get(new Edge(curr, next)),
+            edgeNextGen.get(new MeshEdge(curr, next)),
             newFaceVertex));
       }
     }
@@ -50,51 +50,51 @@ public class CatmullClark implements SubdivisionFunction {
     return newMesh;
   }
 
-  protected Vertex vertexRule(Vertex v) {
-    Edge[] boundary = v.checkForBoundary();
+  protected MeshVertex vertexRule(MeshVertex v) {
+    MeshEdge[] boundary = v.checkForBoundary();
 
     if (boundary == null) {
       int n = v.getOneRing().size();
 
       // Average of surrounding faces
       M3d Q = new M3d();
-      for (Face neighbor : v.getFaces()) {
+      for (MeshFace neighbor : v.getFaces()) {
         Q = Q.plus(neighbor.getCenter());
       }
       Q = Q.times(1.0 / v.getFaces().size());
 
       // Average of midpoints of adjacent edges
       M3d R = new M3d();
-      for (Vertex neighbor : v.getOneRing()) {
+      for (MeshVertex neighbor : v.getOneRing()) {
         R = R.plus(v.plus(neighbor).times(0.5));
       }
       R = R.times(1.0 / v.getOneRing().size());
 
-      return new Vertex(v.times(n - 3).plus(Q).plus(R.times(2)).times(1.0 / n));
+      return new MeshVertex(v.times(n - 3).plus(Q).plus(R.times(2)).times(1.0 / n));
     } else {
-      return new Vertex(
+      return new MeshVertex(
           v.times(0.75)
           .plus(boundary[0].getOtherVertex(v).times(0.125))
           .plus(boundary[1].getOtherVertex(v).times(0.125)));
     }
   }
 
-  protected Vertex edgeRule(Edge e) {
-    Face alpha = e.getFaceAlpha();
-    Face omega = e.getFaceOmega();
+  protected MeshVertex edgeRule(MeshEdge e) {
+    MeshFace alpha = e.getFaceAlpha();
+    MeshFace omega = e.getFaceOmega();
 
     if (omega != null) {
-      return new Vertex(e.getA().times(24)
+      return new MeshVertex(e.getA().times(24)
           .plus(e.getB().times(24))
           .plus(alpha.getAverageVerticesExcluding(e.getA(), e.getB()).times(8))
           .plus(omega.getAverageVerticesExcluding(e.getA(), e.getB()).times(8))
           .times(1.0 / 64.0));
     } else {
-      return new Vertex(e.getMidpoint());
+      return new MeshVertex(e.getMidpoint());
     }
   }
 
-  protected Vertex faceRule(Face face) {
-    return new Vertex(face.getCenter());
+  protected MeshVertex faceRule(MeshFace face) {
+    return new MeshVertex(face.getCenter());
   }
 }

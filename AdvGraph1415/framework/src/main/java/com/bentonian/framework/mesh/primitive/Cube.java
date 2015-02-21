@@ -6,10 +6,10 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.MathConstants;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
+import com.bentonian.framework.ui.Vertex;
 
 public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -22,7 +22,7 @@ public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
       vertices[i] = new Vertex(MathConstants.CORNERS_OF_A_CUBE[i]);
     }
     for (int face = 0; face < 6; face++) {
-      getMesh().add(new Face(
+      getMesh().add(new MeshFace(
           vertices[MathConstants.INDICES_OF_A_CUBE[face][0]],
           vertices[MathConstants.INDICES_OF_A_CUBE[face][1]],
           vertices[MathConstants.INDICES_OF_A_CUBE[face][2]],
@@ -101,7 +101,7 @@ public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
   }
 
   @Override
-  protected void renderVertex(Face face, int index) {
+  protected void renderVertex(MeshFace face, int index) {
     textureCoordinates(getTextureCoord(face.get(index), face.getNormal()));
     color(getMaterial(face.get(index)).getColor());
     vertex(face.get(index));

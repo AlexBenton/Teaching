@@ -7,10 +7,10 @@ import static java.lang.Math.abs;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
+import com.bentonian.framework.ui.Vertex;
 import com.google.common.base.Preconditions;
 
 public class Square extends MeshPrimitiveWithTexture implements IsRayTraceable {
@@ -19,7 +19,7 @@ public class Square extends MeshPrimitiveWithTexture implements IsRayTraceable {
   private static final M3d Z_AXIS = new M3d(0, 0, 1);
   
   public Square() {
-    getMesh().add(new Face(
+    getMesh().add(new MeshFace(
         new Vertex(CORNERS_OF_A_SQUARE[0]),
         new Vertex(CORNERS_OF_A_SQUARE[1]),
         new Vertex(CORNERS_OF_A_SQUARE[2]),

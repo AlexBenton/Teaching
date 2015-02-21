@@ -6,14 +6,15 @@ import com.bentonian.framework.ui.DemoApp;
 
 public class BezierDemo extends DemoApp {
 
-  private final BezierPatch patch = new BezierPatch();
-  private final BezierPatchControlLattice controller = new BezierPatchControlLattice(patch);
+  private final BezierPatch patch;
+  private final BezierPatchControlLattice controller;
 
   protected BezierDemo() {
     super("Bezier patch");
+    this.patch = new BezierPatch();
+    this.controller = new BezierPatchControlLattice(this, patch);
     setCameraDistance(4);
     patch.getFeaturesAccelerator().setShowEdges(true);
-    registerMouseHandler(controller);
   }
 
   @Override

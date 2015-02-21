@@ -10,10 +10,10 @@ import static java.lang.Math.sqrt;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
+import com.bentonian.framework.ui.Vertex;
 
 public class Torus extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -41,7 +41,7 @@ public class Torus extends MeshPrimitiveWithTexture implements IsRayTraceable {
     }
     for (int i = 0; i < di; i++) {
       for (int j = 0; j < dj; j++) {
-        getMesh().add(new Face(
+        getMesh().add(new MeshFace(
             vertices[i][j],
             vertices[i][(j + 1) % dj],
             vertices[(i + 1) % di][(j + 1) % dj],

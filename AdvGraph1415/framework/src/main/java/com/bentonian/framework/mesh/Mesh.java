@@ -11,30 +11,30 @@ import com.bentonian.framework.math.M3d;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class Mesh extends LinkedList<Face> {
+public class Mesh extends LinkedList<MeshFace> {
 
   public Mesh() {
   }
 
-  public Map<Vertex, Vertex> copy(Mesh mesh) {
-    Map<Vertex, Vertex> newVerts = mesh.copyVertices();
+  public Map<MeshVertex, MeshVertex> copy(Mesh mesh) {
+    Map<MeshVertex, MeshVertex> newVerts = mesh.copyVertices();
 
-    for (Face face : mesh) {
-      Vertex[] arr = new Vertex[face.size()];
+    for (MeshFace face : mesh) {
+      MeshVertex[] arr = new MeshVertex[face.size()];
       for (int i = 0; i < face.size(); i++) {
         arr[i] = newVerts.get(face.get(i));
       }
-      add(new Face(arr));
+      add(new MeshFace(arr));
     }
     computeAllNormals();
     return newVerts;
   }
 
-  public Set<Vertex> getVertices() {
-    Set<Vertex> vertices = Sets.newHashSet();
+  public Set<MeshVertex> getVertices() {
+    Set<MeshVertex> vertices = Sets.newHashSet();
 
-    for (Face face : this) {
-      for (Vertex v : face) {
+    for (MeshFace face : this) {
+      for (MeshVertex v : face) {
         vertices.add(v);
       }
     }
@@ -42,47 +42,47 @@ public class Mesh extends LinkedList<Face> {
   }
 
   public void computeAllNormals() {
-    for (Face face : this) {
+    for (MeshFace face : this) {
       face.computeNormal();
     }
-    for (Vertex v : getVertices()) {
+    for (MeshVertex v : getVertices()) {
       v.computeNormal();
     }
   }
 
   public void scale(M3d scale) {
-    Set<Vertex> vertices = getVertices();
-    for (Vertex v : vertices) {
+    Set<MeshVertex> vertices = getVertices();
+    for (MeshVertex v : vertices) {
       v.set(new M3d(
           v.getX() * scale.getX(),
           v.getY() * scale.getY(),
           v.getZ() * scale.getZ()));
     }
-    for (Vertex v : vertices) {
+    for (MeshVertex v : vertices) {
       v.computeNormal();
     }
   }
 
   public void flip() {
     Mesh newMesh = new Mesh();
-    Map<Vertex, Vertex> newVerts = copyVertices();
+    Map<MeshVertex, MeshVertex> newVerts = copyVertices();
 
-    for (Face face : this) {
+    for (MeshFace face : this) {
       int n = face.size();
-      Vertex arr[] = new Vertex[n];
+      MeshVertex arr[] = new MeshVertex[n];
 
       for (int i = 0; i < n; i++) {
         arr[n-1-i] = newVerts.get(face.get(i));
       }
-      newMesh.add(new Face(arr));
+      newMesh.add(new MeshFace(arr));
     }
     setValue(newMesh);
   }
 
   public Mesh centerAtOrigin() {
     M3d pt = new M3d();
-    Set<Vertex> vertices = getVertices();
-    for (Vertex v : vertices) {
+    Set<MeshVertex> vertices = getVertices();
+    for (MeshVertex v : vertices) {
       pt = pt.plus(v);
     }
     pt = pt.times(1.0 / vertices.size());
@@ -95,7 +95,7 @@ public class Mesh extends LinkedList<Face> {
   }
 
   public void unitRadius() {
-    Set<Vertex> vertices = getVertices();
+    Set<MeshVertex> vertices = getVertices();
     M3d least = new M3d();
     M3d most = new M3d();
     getBounds(least, most);
@@ -110,7 +110,7 @@ public class Mesh extends LinkedList<Face> {
   }
 
   public boolean isTriangulated() {
-    for (Face face : this) {
+    for (MeshFace face : this) {
       if (face.size() > 3) {
         return false;
       }
@@ -120,20 +120,20 @@ public class Mesh extends LinkedList<Face> {
 
   public void triangulate() {
     Mesh newMesh = new Mesh();
-    Map<Vertex, Vertex> newVerts = copyVertices();
-    for (Face face : this) {
-      Vertex A = new Vertex(face.getCenter());
+    Map<MeshVertex, MeshVertex> newVerts = copyVertices();
+    for (MeshFace face : this) {
+      MeshVertex A = new MeshVertex(face.getCenter());
       for (int i = 0; i < face.size(); i++) {
-        Vertex B = newVerts.get(face.getVertex(i));
-        Vertex C = newVerts.get(face.getVertex(i + 1));
-        newMesh.add(new Face(A, B, C));
+        MeshVertex B = newVerts.get(face.getVertex(i));
+        MeshVertex C = newVerts.get(face.getVertex(i + 1));
+        newMesh.add(new MeshFace(A, B, C));
       }
     }
     setValue(newMesh);
   }
 
   public boolean isQuads() {
-    for (Face face : this) {
+    for (MeshFace face : this) {
       if (face.size() != 4) {
         return false;
       }
@@ -143,25 +143,25 @@ public class Mesh extends LinkedList<Face> {
 
   public void quadrangulate() {
     Mesh newMesh = new Mesh();
-    Map<Vertex, Vertex> newVerts = copyVertices();
-    Map<Edge, Vertex> edgeMidpoints = Maps.newHashMap();
+    Map<MeshVertex, MeshVertex> newVerts = copyVertices();
+    Map<MeshEdge, MeshVertex> edgeMidpoints = Maps.newHashMap();
 
-    for (Face face : this) {
+    for (MeshFace face : this) {
       for (int i = 0; i < face.size(); i++) {
-        Edge e = new Edge(face.getVertex(i), face.getVertex(i + 1));
+        MeshEdge e = new MeshEdge(face.getVertex(i), face.getVertex(i + 1));
         if (!edgeMidpoints.containsKey(e)) {
-          edgeMidpoints.put(e, new Vertex(e.getMidpoint()));
+          edgeMidpoints.put(e, new MeshVertex(e.getMidpoint()));
         }
       }
     }
 
-    for (Face face : this) {
-      Vertex A = new Vertex(face.getCenter());
+    for (MeshFace face : this) {
+      MeshVertex A = new MeshVertex(face.getCenter());
       for (int i = 0; i < face.size(); i++) {
-        Vertex C = newVerts.get(face.getVertex(i));
-        Vertex B = edgeMidpoints.get(new Edge(C, face.getVertex(i - 1)));
-        Vertex D = edgeMidpoints.get(new Edge(C, face.getVertex(i + 1)));
-        newMesh.add(new Face(A, B, C, D));
+        MeshVertex C = newVerts.get(face.getVertex(i));
+        MeshVertex B = edgeMidpoints.get(new MeshEdge(C, face.getVertex(i - 1)));
+        MeshVertex D = edgeMidpoints.get(new MeshEdge(C, face.getVertex(i + 1)));
+        newMesh.add(new MeshFace(A, B, C, D));
       }
     }
     setValue(newMesh);
@@ -170,7 +170,7 @@ public class Mesh extends LinkedList<Face> {
   public void getBounds(M3d min, M3d max) {
     min.set(get(0).get(0));
     max.set(get(0).get(0));
-    for (Vertex v : getVertices()) {
+    for (MeshVertex v : getVertices()) {
       min.set(min(min.getX(), v.getX()),
           min(min.getY(), v.getY()),
           min(min.getZ(), v.getZ()));
@@ -180,12 +180,12 @@ public class Mesh extends LinkedList<Face> {
     }
   }
 
-  public Map<Vertex, Vertex> copyVertices() {
-    Map<Vertex, Vertex> newVerts = Maps.newHashMap();
-    for (Face face : this) {
-      for (Vertex v : face) {
+  public Map<MeshVertex, MeshVertex> copyVertices() {
+    Map<MeshVertex, MeshVertex> newVerts = Maps.newHashMap();
+    for (MeshFace face : this) {
+      for (MeshVertex v : face) {
         if (!newVerts.containsKey(v)) {
-          newVerts.put(v, new Vertex(v));
+          newVerts.put(v, new MeshVertex(v));
         }
       }
     }

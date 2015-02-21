@@ -10,10 +10,10 @@ import static java.lang.Math.sin;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
+import com.bentonian.framework.ui.Vertex;
 
 public class Cylinder extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -32,7 +32,7 @@ public class Cylinder extends MeshPrimitiveWithTexture implements IsRayTraceable
     }
     for (int u = 0; u < du; u++) {
       for (int v = 0; v < dv - 1; v++) {
-        getMesh().add(new Face(
+        getMesh().add(new MeshFace(
             vertices[u][v],
             vertices[u][(v + 1) % dv],
             vertices[(u + 1) % du][(v + 1) % dv],

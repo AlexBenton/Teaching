@@ -1,10 +1,10 @@
 package com.bentonian.framework.ui;
 
-import static com.bentonian.framework.mesh.VertexReader.COLOR_READER;
-import static com.bentonian.framework.mesh.VertexReader.NORMAL_READER;
-import static com.bentonian.framework.mesh.VertexReader.POSITION_READER;
-import static com.bentonian.framework.mesh.VertexReader.TEXTURE_COORDS_READER;
 import static com.bentonian.framework.ui.ShaderUtil.testGlError;
+import static com.bentonian.framework.ui.VertexReader.COLOR_READER;
+import static com.bentonian.framework.ui.VertexReader.NORMAL_READER;
+import static com.bentonian.framework.ui.VertexReader.POSITION_READER;
+import static com.bentonian.framework.ui.VertexReader.TEXTURE_COORDS_READER;
 
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -16,8 +16,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Vertex;
-import com.bentonian.framework.mesh.VertexReader;
 import com.bentonian.framework.texture.TexCoord;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;

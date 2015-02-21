@@ -5,12 +5,12 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersection;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
+import com.bentonian.framework.ui.Vertex;
 
 public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
 
@@ -65,18 +65,18 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
     RayIntersections hits = new RayIntersections();
 
     if (rayTracingAccelerator == null) {
-      for (Face face : mesh) {
+      for (MeshFace face : mesh) {
         traceRayToFace(ray, hits, face);
       }
     } else if (rayTracingAccelerator.isHitByRay(ray)) {
-      for (Face face : rayTracingAccelerator.getFacesAlongRay(ray)) {
+      for (MeshFace face : rayTracingAccelerator.getFacesAlongRay(ray)) {
         traceRayToFace(ray, hits, face);
       }
     }
     return hits;
   }
 
-  public void traceRayToFace(Ray ray, RayIntersections hits, Face face) {
+  public void traceRayToFace(Ray ray, RayIntersections hits, MeshFace face) {
     for (int i = 0; i < face.size() - 2; i++) {
       Vertex A = face.get(0);
       Vertex B = face.get(i + 1);
@@ -112,7 +112,7 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
       featuresAccelerator.render(glCanvas);
     }
     if (!isCompiled()) {
-      for (Face face : mesh) {
+      for (MeshFace face : mesh) {
         normal(face.getNormal());
         renderFace(face);
       }
@@ -129,7 +129,7 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
     // TODO(me) Reset raytracing accelerator here?
   }
 
-  protected void renderFace(Face face) {
+  protected void renderFace(MeshFace face) {
     if (renderStyle == RenderStyle.NORMALS_BY_FACE) {
       normal(face.getNormal());
     }
@@ -140,7 +140,7 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
     }
   }
 
-  protected void renderVertex(Face face, int index) {
+  protected void renderVertex(MeshFace face, int index) {
     if (renderStyle == RenderStyle.NORMALS_BY_VERTEX) {
       normal(face.get(index).getNormal());
     }

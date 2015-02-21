@@ -2,7 +2,7 @@ package com.bentonian.framework.mesh.primitive;
 
 import com.bentonian.framework.material.Material;
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
 import com.bentonian.framework.texture.IsTextured;
 import com.bentonian.framework.texture.Texture;
@@ -59,7 +59,7 @@ public abstract class MeshPrimitiveWithTexture extends MeshPrimitive implements 
   }
 
   @Override
-  protected void renderVertex(Face face, int index) {
+  protected void renderVertex(MeshFace face, int index) {
     textureCoordinates(getTextureCoord(face.get(index)));
     super.renderVertex(face, index);
   }

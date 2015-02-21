@@ -36,23 +36,23 @@ public class DeformationDemo extends DemoApp {
       break;
     case Keyboard.KEY_LBRACKET:
       twist.setTwist(twist.getTwist() - 0.25);
-      surface.resetAndRefine();
+      surface.reset();
       break;
     case Keyboard.KEY_RBRACKET:
       twist.setTwist(twist.getTwist() + 0.25);
-      surface.resetAndRefine();
+      surface.reset();
       break;
     default:
       super.onKeyDown(key);
       break;
     }
-    setTitle("Deformation Demo - Level = " + surface.getTargetLevel()
-        + ", twist = " + twist.getTwist());
   }
 
   @Override
   protected void draw() {
     surface.render(this);
+    setTitle("Deformation Demo - Level = " + surface.getTargetLevel()
+        + ", twist = " + twist.getTwist() + ", polys = " + surface.getNumPolys());
   }
 
   /////////////////////////////////////////////////////////////////////////////

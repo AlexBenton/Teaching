@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.Edge;
-import com.bentonian.framework.mesh.Face;
+import com.bentonian.framework.mesh.MeshEdge;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.mesh.Vertex;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.mesh.primitive.MeshPrimitive;
 import com.bentonian.framework.ui.GLCanvas;
 import com.google.common.collect.Lists;
@@ -27,23 +27,23 @@ public class AnimatedMeshPrimitive extends MeshPrimitive {
   }
 
   public void copyFaces(Mesh source) {
-    Map<Vertex, Vertex> newVerts = getMesh().copy(source);
+    Map<MeshVertex, MeshVertex> newVerts = getMesh().copy(source);
     for (Interpolation interpolant : paths) {
       interpolant.vertex = newVerts.get(interpolant.vertex);
     }
   }
 
-  public Vertex addVertexAnimation(Vertex v, M3d from, M3d to) {
+  public MeshVertex addVertexAnimation(MeshVertex v, M3d from, M3d to) {
     paths.add(new Interpolation(v, from, to));
     return v;
   }
 
-  public Vertex addVertexAnimation(Vertex v, Edge from, M3d to) {
+  public MeshVertex addVertexAnimation(MeshVertex v, MeshEdge from, M3d to) {
     paths.add(new Interpolation(v, from.getMidpoint(), to));
     return v;
   }
 
-  public Vertex addVertexAnimation(Vertex v, Face from, M3d to) {
+  public MeshVertex addVertexAnimation(MeshVertex v, MeshFace from, M3d to) {
     paths.add(new Interpolation(v, from.getCenter(), to));
     return v;
   }
@@ -79,11 +79,11 @@ public class AnimatedMeshPrimitive extends MeshPrimitive {
   }
 
   private static class Interpolation {
-    Vertex vertex;
+    MeshVertex vertex;
     M3d from;
     M3d to;
 
-    public Interpolation(Vertex vertex, M3d from, M3d to) {
+    public Interpolation(MeshVertex vertex, M3d from, M3d to) {
       this.vertex = vertex;
       this.from = from;
       this.to = to;
