@@ -5,9 +5,9 @@ import java.io.FileWriter;
 import java.io.InputStream;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
-import com.bentonian.framework.ui.Vertex;
+import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
@@ -40,7 +40,7 @@ public class OFFUtil {
     nVerts = Integer.valueOf(tokie.next(' '));
     nFaces = Integer.valueOf(tokie.next(' '));
 
-    Vertex verts[] = new Vertex[nVerts];
+    MeshVertex verts[] = new MeshVertex[nVerts];
 
     for (int i = 0; i < nVerts; i++)
     {
@@ -49,13 +49,13 @@ public class OFFUtil {
       double y = Double.valueOf(tokie.next(' '));
       double z = Double.valueOf(tokie.next(' '));
 
-      verts[i] = new Vertex(new M3d(x, y, z));
+      verts[i] = new MeshVertex(new M3d(x, y, z));
     }
     for (int i = 0; i<nFaces; i++)
     {
       tokie = new StringTokenizer(tokenizer.next('\n'));
       int n = Integer.valueOf(tokie.next(' '));
-      Vertex faceVerts[] = new Vertex[n];
+      MeshVertex faceVerts[] = new MeshVertex[n];
 
       for (int j = 0; j < n; j++) {
         String tok = tokie.next(' ');
@@ -71,24 +71,24 @@ public class OFFUtil {
 
   public static void write(Mesh mesh, String filename) {
     try {
-      final BiMap<Vertex, Integer> indices = HashBiMap.create();
+      final BiMap<MeshVertex, Integer> indices = HashBiMap.create();
       BufferedWriter out = new BufferedWriter(new FileWriter(filename));
       out.write("OFF\n");
       int i = 0;
-      for (Vertex v : mesh.getVertices()) {
+      for (MeshVertex v : mesh.getVertices()) {
         indices.put(v, i++);
       }
       out.write(indices.size() + " " + mesh.size() + " 0\n");
       for (i = 0; i < indices.size(); i++) {
-        Vertex v = indices.inverse().get(i);
+        MeshVertex v = indices.inverse().get(i);
         out.write(((float) v.getX()) + " " + ((float) v.getY()) + " " + ((float) v.getZ()) + "\n");
       }
       for (MeshFace f : mesh) {
         out.write(f.size() + " ");
         out.write(Joiner.on(" ").join(FluentIterable.from(f).transform(
-            new Function<Vertex, Integer>() { 
+            new Function<MeshVertex, Integer>() { 
               @Override 
-              public Integer apply(Vertex v) {
+              public Integer apply(MeshVertex v) {
                 return indices.get(v);
               }
             })));

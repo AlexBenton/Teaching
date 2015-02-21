@@ -11,9 +11,9 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
 import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
-import com.bentonian.framework.ui.Vertex;
 
 public class Torus extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -33,10 +33,10 @@ public class Torus extends MeshPrimitiveWithTexture implements IsRayTraceable {
     this.R = R;
     this.r = r;
 
-    Vertex[][] vertices = new Vertex[di][dj];
+    MeshVertex[][] vertices = new MeshVertex[di][dj];
     for (int i = 0; i < di; i++) {
       for (int j = 0; j < dj; j++) {
-        vertices[i][j] = new Vertex(getTorusVertex(i, j));
+        vertices[i][j] = new MeshVertex(getTorusVertex(i, j));
       }
     }
     for (int i = 0; i < di; i++) {

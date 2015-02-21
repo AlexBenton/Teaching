@@ -11,9 +11,9 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
 import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
-import com.bentonian.framework.ui.Vertex;
 
 public class Cylinder extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -22,12 +22,12 @@ public class Cylinder extends MeshPrimitiveWithTexture implements IsRayTraceable
   }
 
   public Cylinder(int du, int dv) {
-    Vertex[][] vertices = new Vertex[du][dv];
+    MeshVertex[][] vertices = new MeshVertex[du][dv];
     for (int u = 0; u < du; u++) {
       for (int v = 0; v < dv; v++) {
         double s = u * PI * 2 / du;
         double t = v / (double) dv;
-        vertices[u][v] = new Vertex(cos(s), t * 2 - 1, sin(s));
+        vertices[u][v] = new MeshVertex(cos(s), t * 2 - 1, sin(s));
       }
     }
     for (int u = 0; u < du; u++) {

@@ -5,12 +5,12 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersection;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
+import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
-import com.bentonian.framework.ui.Vertex;
 
 public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
 
@@ -78,9 +78,9 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
 
   public void traceRayToFace(Ray ray, RayIntersections hits, MeshFace face) {
     for (int i = 0; i < face.size() - 2; i++) {
-      Vertex A = face.get(0);
-      Vertex B = face.get(i + 1);
-      Vertex C = face.get(i + 2);
+      MeshVertex A = face.get(0);
+      MeshVertex B = face.get(i + 1);
+      MeshVertex C = face.get(i + 2);
       Double t = ray.intersectsTriangle(A, B, C, face.getNormal());
       if (t != null) {
         M3d pt = ray.at(t);
@@ -92,7 +92,7 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
     }
   }
 
-  private M3d getNormalFromBarycentricWeights(Vertex A, Vertex B, Vertex C, M3d pt) {
+  private M3d getNormalFromBarycentricWeights(MeshVertex A, MeshVertex B, MeshVertex C, M3d pt) {
     double barycentricWeightA = B.minus(pt).cross(C.minus(pt)).length();
     double barycentricWeightB = C.minus(pt).cross(A.minus(pt)).length();
     double barycentricWeightC = A.minus(pt).cross(B.minus(pt)).length();

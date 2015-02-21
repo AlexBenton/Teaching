@@ -7,9 +7,9 @@ import com.bentonian.framework.math.MathConstants;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
 import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.texture.TexCoord;
-import com.bentonian.framework.ui.Vertex;
 
 public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
@@ -17,9 +17,9 @@ public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
   private static final M3d Z_AXIS = new M3d(0, 0, 1);
 
   public Cube() {
-    Vertex[] vertices = new Vertex[8];
+    MeshVertex[] vertices = new MeshVertex[8];
     for (int i = 0; i < 8; i++) {
-      vertices[i] = new Vertex(MathConstants.CORNERS_OF_A_CUBE[i]);
+      vertices[i] = new MeshVertex(MathConstants.CORNERS_OF_A_CUBE[i]);
     }
     for (int face = 0; face < 6; face++) {
       getMesh().add(new MeshFace(
