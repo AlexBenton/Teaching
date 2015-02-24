@@ -39,8 +39,7 @@ public class BlobbyDemo extends DemoApp {
             1.0, RED) {
           @Override
           public void update(double t) {
-//            translate(new M3d(4 * Math.cos(t), 0, 0).minus(getPosition()));
-moved = true;
+            translate(new M3d(4 * Math.cos(t), 0, 0).minus(getPosition()));
           }
         }.getMetaBall())
         .addForce(new Mover(-4, 0, 0, 1.0, BLUE).getMetaBall())
