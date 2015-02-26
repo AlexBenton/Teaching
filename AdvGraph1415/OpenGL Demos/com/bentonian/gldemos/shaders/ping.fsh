@@ -26,7 +26,7 @@ void main() {
     vec3 radial = position - Ping;
     vec3 axisOfRotation = cross(radial, n);
     float d = length(radial);
-    float theta = sin((d - Time) * PI * 5.0) * PI / 4.0  / ((d + 1) * (d + 1));
+    float theta = sin((d - Time * 0.0005) * PI * 5.0) * PI / 4.0  / ((d + 1) * (d + 1));
     mat3 tiltMatrix = rotationMatrix(axisOfRotation, theta);
     n = normalize(tiltMatrix * n);
   }

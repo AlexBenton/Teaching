@@ -12,13 +12,13 @@ import com.bentonian.framework.material.MaterialPrimitive;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
-import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
+import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.mesh.implicits.Octree.State;
 import com.bentonian.framework.scene.IsRayTraceable;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
-import com.bentonian.framework.ui.Vertex;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -365,12 +365,12 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
 
   public Mesh getMesh() {
     Mesh mesh = new Mesh();
-    Map<Vertex, Vertex> vertices = Maps.newHashMap();
+    Map<M3d, MeshVertex> vertices = Maps.newHashMap();
     for (Octree octree : getRenderableOctrees()) {
       for (Triangle poly : octree.getPolygonList()) {
-        if (!vertices.containsKey(poly.a)) { vertices.put(poly.a, new Vertex(poly.a)); }
-        if (!vertices.containsKey(poly.b)) { vertices.put(poly.b, new Vertex(poly.b)); }
-        if (!vertices.containsKey(poly.c)) { vertices.put(poly.c, new Vertex(poly.c)); }
+        if (!vertices.containsKey(poly.a)) { vertices.put(poly.a, new MeshVertex(poly.a)); }
+        if (!vertices.containsKey(poly.b)) { vertices.put(poly.b, new MeshVertex(poly.b)); }
+        if (!vertices.containsKey(poly.c)) { vertices.put(poly.c, new MeshVertex(poly.c)); }
         mesh.add(new MeshFace(vertices.get(poly.a), vertices.get(poly.b), vertices.get(poly.c)));
       }
     }

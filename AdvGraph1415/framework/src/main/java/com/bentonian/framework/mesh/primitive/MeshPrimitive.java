@@ -112,12 +112,15 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
       featuresAccelerator.render(glCanvas);
     }
     if (!isCompiled()) {
-      for (MeshFace face : mesh) {
-        normal(face.getNormal());
-        renderFace(face);
-      }
+      renderFaces();
     }
     super.renderLocal(glCanvas);
+  }
+
+  protected void renderFaces() {
+    for (MeshFace face : mesh) {
+      renderFace(face);
+    }
   }
 
   @Override
@@ -141,10 +144,11 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
   }
 
   protected void renderVertex(MeshFace face, int index) {
+    MeshVertex v = face.get(index);
     if (renderStyle == RenderStyle.NORMALS_BY_VERTEX) {
-      normal(face.get(index).getNormal());
+      normal(v.getNormal());
     }
-    color(getMaterial(face.get(index)).getColor());
-    vertex(face.get(index));
+    color(getMaterial(v).getColor());
+    vertex(v);
   }
 }

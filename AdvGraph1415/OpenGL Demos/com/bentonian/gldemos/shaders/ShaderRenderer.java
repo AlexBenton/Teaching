@@ -11,10 +11,13 @@ public class ShaderRenderer {
   private final String fragmentShader;
 
   protected int shaderProgram = -1;
-
+  protected float t = 0;
+  protected long tick;
+  
   public ShaderRenderer(String vertexShader, String fragmentShader) {
     this.vertexShader = vertexShader;
     this.fragmentShader = fragmentShader;
+    this.tick = System.currentTimeMillis();
   }
 
   protected void init(ShaderDemo shaderDemo) {
@@ -30,6 +33,14 @@ public class ShaderRenderer {
   }
 
   public void render(ShaderDemo shaderDemo, ShaderModel model) {
+    int timeUniform = GL20.glGetUniformLocation(shaderProgram, "Time");
+    if (timeUniform != -1) {
+      long now = System.currentTimeMillis();
+
+      t += (now - tick);
+      tick = now;
+      GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "Time"), t);
+    }
     model.getGeometry().render(shaderDemo);
   }
 

@@ -23,7 +23,8 @@ public class ShaderDemo extends DemoApp {
     new GoochRenderer(),
     new ShaderRenderer("lattice.vsh", "lattice.fsh"),
     new PingRenderer(),
-    new MandelbrotRenderer()
+    new MandelbrotRenderer(),
+    new ShaderRenderer("quilez-voronoi.vsh", "quilez-voronoi.fsh"),
   };
 
   private ShaderModel model;
@@ -32,6 +33,7 @@ public class ShaderDemo extends DemoApp {
   private float mandelbrotZoom = 1;
   private float mandelbrotCenterX = 0;
   private float mandelbrotCenterY = 0;
+  private boolean spin = false;
   private M3d pingPoint;
 
   public ShaderDemo() {
@@ -50,6 +52,9 @@ public class ShaderDemo extends DemoApp {
   @Override
   public void onKeyDown(int key) {
     switch (key) {
+    case Keyboard.KEY_SPACE:
+      spin = !spin;
+      break;
     case Keyboard.KEY_1:
     case Keyboard.KEY_2:
     case Keyboard.KEY_3:
@@ -113,6 +118,10 @@ public class ShaderDemo extends DemoApp {
 
   @Override
   protected void draw() {
+    if (spin) {
+      getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new M3d(0, 1, 0)), 0.01);
+    }
+    
     if (nextShader != -1) {
       if (currentShader != -1) {
         shaders[currentShader].disable(this);

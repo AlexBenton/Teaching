@@ -1,11 +1,11 @@
 package com.bentonian.framework.mesh.bezier;
 
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
+import com.bentonian.framework.mesh.MeshFace;
+import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.mesh.primitive.MeshPrimitive;
 import com.bentonian.framework.ui.GLCanvas;
-import com.bentonian.framework.ui.Vertex;
 
 public class BezierPatch extends MeshPrimitive {
 
@@ -14,7 +14,7 @@ public class BezierPatch extends MeshPrimitive {
   private static final int[][] FACE_OFFSETS = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } };
 
   private final M3d[][] P = new M3d[4][4];
-  private final Vertex[][] meshVertices = new Vertex[DU + 1][DV + 1];
+  private final MeshVertex[][] meshVertices = new MeshVertex[DU + 1][DV + 1];
 
   public BezierPatch() {
     super(new Mesh());
@@ -26,12 +26,12 @@ public class BezierPatch extends MeshPrimitive {
     }
     for (int u = 0; u <= DU; u++) {
       for (int v = 0; v <= DV; v++) {
-        meshVertices[u][v] = new Vertex(u, v, 0);  // Placeholder values
+        meshVertices[u][v] = new MeshVertex(u, v, 0);  // Placeholder values
       }
     }
     for (int u = 0; u < DU; u++) {
       for (int v = 0; v < DV; v++) {
-        Vertex faceVerts[] = new Vertex[4];
+        MeshVertex faceVerts[] = new MeshVertex[4];
         for (int k = 0; k < 4; k++) {
           int[] offset = FACE_OFFSETS[k];
           faceVerts[k] = meshVertices[u + offset[0]][v + offset[1]];
@@ -45,7 +45,7 @@ public class BezierPatch extends MeshPrimitive {
     return P[i][j];
   }
   
-  public Vertex getMeshVertex(int u, int v) {
+  public MeshVertex getMeshVertex(int u, int v) {
     return meshVertices[u][v];
   }
   
