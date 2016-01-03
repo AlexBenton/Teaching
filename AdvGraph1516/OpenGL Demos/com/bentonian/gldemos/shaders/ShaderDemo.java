@@ -24,6 +24,7 @@ public class ShaderDemo extends DemoApp {
     new ShaderRenderer("lattice.vsh", "lattice.fsh"),
     new PingRenderer(),
     new MandelbrotRenderer(),
+    new VoronoiRenderer(),
     new ShaderRenderer("quilez-voronoi.vsh", "quilez-voronoi.fsh"),
   };
 
@@ -35,6 +36,7 @@ public class ShaderDemo extends DemoApp {
   private float mandelbrotCenterY = 0;
   private boolean spin = false;
   private M3d pingPoint;
+  private M3d pongPoint;
 
   public ShaderDemo() {
     super("Shader demo");
@@ -111,8 +113,18 @@ public class ShaderDemo extends DemoApp {
   @Override
   public void onMouseMove(int x, int y) {
     super.onMouseMove(x, y);
-    if ((currentShader != -1) && shaders[currentShader].getClass().getName().contains("Ping")) {
+    if ((currentShader != -1) 
+        && shaders[currentShader].getClass().getName().contains("Ping")) {
       pingPoint = pickPoint(model.getGeometry(), x, y);
+    }
+  }
+
+  @Override
+  public void onMouseDown(int x, int y, int mouseButton) {
+    super.onMouseDown(x, y, mouseButton);
+    if ((currentShader != -1) 
+        && shaders[currentShader].getClass().getName().contains("Voronoi")) {
+      pongPoint = pickPoint(model.getGeometry(), x, y);
     }
   }
 
@@ -176,6 +188,10 @@ public class ShaderDemo extends DemoApp {
 
   M3d getPingPoint() {
     return pingPoint;
+  }
+
+  M3d getPongPoint() {
+    return pongPoint;
   }
 
   public static void main(String[] args) {

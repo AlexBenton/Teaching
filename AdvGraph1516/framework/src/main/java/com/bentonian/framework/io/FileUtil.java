@@ -8,6 +8,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -17,6 +20,11 @@ import com.google.common.collect.Lists;
 
 public class FileUtil {
 
+  public static byte[] readFileBytes(String filename) throws IOException {
+    Path path = Paths.get(filename);
+    return Files.readAllBytes(path);
+  }
+  
   public static List<String> readFile(String filename) {
     try {
       BufferedReader reader = new BufferedReader(new FileReader(filename));
@@ -66,14 +74,48 @@ public class FileUtil {
     }
   }
 
-  public static void writeImageToPng(BufferedImage image, String path) {
+  public static boolean writeImageToPng(BufferedImage image, String path) {
     try {
       ImageIO.write(image, "png", new File(path));
-    } catch (IOException e) {
+      File f = new File(path);
+      System.out.println("Wrote image at '" + f.getAbsolutePath() + "'");
+      return true;
+    } catch (RuntimeException | IOException e) {
       e.printStackTrace();
+      return false;
     }
   }
   
+  public static boolean writeGif(List<BufferedImage> frames, String filename) {
+    System.out.println("Building GIF...");
+
+    AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
+    gifEncoder.setFrameRate(33);
+    gifEncoder.setQuality(1);
+    gifEncoder.setRepeat(0);
+    gifEncoder.start(filename + ".gif");
+    for (BufferedImage source : frames) {
+      gifEncoder.addFrame(source);
+    }
+    gifEncoder.finish();
+    System.out.println("...GIF complete.");
+    return true;
+  }
+
+  public static boolean writeAvi(List<BufferedImage> frames, String filename) {
+    System.out.println("Building AVI...");
+    AVIEncoder aviEncoder = new AVIEncoder();
+    try {
+      aviEncoder.write(filename + ".avi", frames);
+      System.out.println("...AVI complete.");
+      return true;
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.out.println("...failed to write AVI.");
+      return false;
+    }
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   private static List<String> readStreamAndClose(BufferedReader reader) throws IOException {

@@ -14,7 +14,7 @@ public class Circle extends CompiledPrimitive implements IsRayTraceable {
   private static final M3d Y_AXIS = new M3d(0,1,0);
   private static final Material RING = new Material().setColor(new M3d(0.4, 0.4, 1));
   private static final float RADIUS = 5;
-  
+
   private final Material black;
   private final Material white;
 
@@ -27,14 +27,14 @@ public class Circle extends CompiledPrimitive implements IsRayTraceable {
   @Override
   public RayIntersections traceLocal(Ray ray) {
     double t = -ray.origin.getY() / ray.direction.getY();
-    
+
     if (t >= MathConstants.EPSILON) {
       M3d pt = ray.at(t);
       int x = (int)(Math.floor(pt.getX()));
       int z = (int)(Math.floor(pt.getZ()));
-      
+
       if (pt.length() <= RADIUS) {
-        return new RayIntersections().add(this, t, ray.at(t), Y_AXIS, 
+        return new RayIntersections().add(this, t, ray.at(t), Y_AXIS,
             (((x + z) & 0x01) == 0) ? black : white);
       } else if (pt.length() <= RADIUS + 0.25) {
         return new RayIntersections().add(this, t, ray.at(t), Y_AXIS, RING);
