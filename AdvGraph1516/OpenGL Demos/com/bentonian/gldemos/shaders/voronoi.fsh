@@ -14,34 +14,53 @@ vec3 asColor(vec3 pos) {
   return (pos + vec3(1, 1, 1)) / 2;
 }
 
+vec3 chooseNearest(vec3 pos, vec3 one, vec3 two) {
+  return distance(pos, one) < distance(pos, two) ? one : two;
+}
+
+vec3 chooseFarthest(vec3 pos, vec3 one, vec3 two) {
+  return distance(pos, one) >= distance(pos, two) ? one : two;
+}
+
 // Inspired by http://nullprogram.com/blog/2014/06/01/
 // Inspired by http://www.iquilezles.org/www/articles/voronoilines/voronoilines.htm
+bool findNearest(vec3 pos, out vec3 a, out vec3 b) {
+  if (length(seeds[0]) <= 0.0001 || length(seeds[1]) <= 0.0001) {
+    return false;
+  }
+
+  vec3 first = chooseNearest(pos, seeds[0], seeds[1]);
+  vec3 second = chooseFarthest(pos, seeds[0], seeds[1]);
+
+  for (int i = 2; i < 16; i++) {
+    if (length(seeds[i]) > 0.0001) {
+      float curr = distance(pos, seeds[i]);
+      if (curr < distance(pos, first)) {
+        second = first;
+        first = seeds[i];
+      } else if (curr < distance(pos, second)) {
+        second = seeds[i];
+      }
+    }
+  }
+
+  a = first;
+  b = second;
+  return true;
+}
+
 void main() {
+  vec3 a, b;
   vec3 n = normalize(normal);
   float diffuse = max(0, dot(n, normalize(lightPosition - position)));
   vec3 color = (position + vec3(1, 1, 1)) / 2;
 
-  if (length(seeds[0]) > 0.0001) {
-    float dist = distance(seeds[0], position);
-    vec3 pos = seeds[0];
-    color = asColor(seeds[0]);
-
-    for (int j = 1; j <= 16; j++) {
-      int i = (j % 16);
-      if (length(seeds[i]) > 0.0001) {
-        float curr = distance(seeds[i], position);
-        if (curr < dist) {
-          vec3 midpt = (seeds[i] + pos) / 2;
-          float t = dot(position - midpt, normalize(seeds[i] - pos));
-          if (t < 0.01) {
-            color = GRAY;
-          } else {
-            color = asColor(seeds[i]);
-          }
-          dist = curr;
-          pos = seeds[i];
-        }
-      }
+  if (findNearest(position, a, b)) {
+    float t = dot(position - ((a + b) / 2), normalize(a - b));
+    if (t < 0.01) {
+      color = mix(GRAY, asColor(a), smoothstep(0, 0.01, t));
+    } else {
+      color = asColor(a);
     }
   }
   
