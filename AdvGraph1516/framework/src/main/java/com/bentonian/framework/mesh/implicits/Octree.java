@@ -122,32 +122,36 @@ public class Octree {
         }
       }
 
-      if (crossings == 4) {
-        boolean zeroOneAdjacent = arr[0].hasSharedEndPoint(arr[1]);
-        OctreeEdgeInterpolationData a = arr[0];
-        OctreeEdgeInterpolationData b = zeroOneAdjacent ? arr[1] : arr[2];
-        OctreeEdgeInterpolationData c = zeroOneAdjacent ? arr[2] : arr[1];
-        OctreeEdgeInterpolationData d = arr[3];
+      addPolygonsFromInterestingEdges(arr, crossings);
+    }
+  }
+  
+  private void addPolygonsFromInterestingEdges(OctreeEdgeInterpolationData[] arr, int crossings) {
+    if (crossings == 4) {
+      boolean zeroOneAdjacent = arr[0].hasSharedEndPoint(arr[1]);
+      OctreeEdgeInterpolationData a = arr[0];
+      OctreeEdgeInterpolationData b = zeroOneAdjacent ? arr[1] : arr[2];
+      OctreeEdgeInterpolationData c = zeroOneAdjacent ? arr[2] : arr[1];
+      OctreeEdgeInterpolationData d = arr[3];
 
-        addPolyWithOrientation(
-            a.getInterpolatedCrossing(),
-            b.getInterpolatedCrossing(),
-            c.getInterpolatedCrossing(),
-            arr[0].getNormalDir());
-        addPolyWithOrientation(
-            b.getInterpolatedCrossing(),
-            c.getInterpolatedCrossing(),
-            d.getInterpolatedCrossing(),
-            arr[0].getNormalDir());
-      } else if (crossings == 3) {
-        addPolyWithOrientation(
-            arr[0].getInterpolatedCrossing(),
-            arr[1].getInterpolatedCrossing(),
-            arr[2].getInterpolatedCrossing(),
-            arr[0].getNormalDir());
-      } else if (crossings > 0) {
-        System.err.println("Unexpected numCrossings: " + crossings);
-      }
+      addPolyWithOrientation(
+          a.getInterpolatedCrossing(),
+          b.getInterpolatedCrossing(),
+          c.getInterpolatedCrossing(),
+          arr[0].getNormalDir());
+      addPolyWithOrientation(
+          b.getInterpolatedCrossing(),
+          c.getInterpolatedCrossing(),
+          d.getInterpolatedCrossing(),
+          arr[0].getNormalDir());
+    } else if (crossings == 3) {
+      addPolyWithOrientation(
+          arr[0].getInterpolatedCrossing(),
+          arr[1].getInterpolatedCrossing(),
+          arr[2].getInterpolatedCrossing(),
+          arr[0].getNormalDir());
+    } else if (crossings > 0) {
+      System.err.println("Unexpected numCrossings: " + crossings);
     }
   }
 

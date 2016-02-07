@@ -16,6 +16,13 @@ public class M3d {
     set(x, y, z);
   }
   
+  public static M3d fromRGBA(int rgba) {
+    int r = (rgba >> 16) & 0xFF;
+    int g = (rgba >> 8) & 0xFF;
+    int b = (rgba >> 0) & 0xFF;
+    return new M3d(r, g, b).times(1.0 / 255.0);
+  }
+  
   public M3d(M3d A) {
     set(A);
   }

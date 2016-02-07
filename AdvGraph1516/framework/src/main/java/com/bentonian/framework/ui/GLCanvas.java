@@ -58,8 +58,6 @@ public class GLCanvas {
     GL11.glEnable(GL11.GL_BLEND);
     GL11.glDepthFunc(GL11.GL_LEQUAL);
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 
     testGlError();
   }
@@ -132,8 +130,8 @@ public class GLCanvas {
     updateTextureBuffer(textureName, buffer, width, height, GL11.GL_RGBA);
   }
 
-  public static void updateTextureBuffer(int textureId, ByteBuffer buffer, int width, int height,
-      int glFormat) {
+  public static void updateTextureBuffer(
+      int textureId, ByteBuffer buffer, int width, int height, int glFormat) {
     testGlError();
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, 

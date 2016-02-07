@@ -17,6 +17,8 @@ public class MetaCube implements Force, HasColor {
     double x = Math.abs(v.getX());
     double y = Math.abs(v.getY());
     double z = Math.abs(v.getZ());
+
+    // A force function that drops off continuously, instead of being a sawtooth, allows blending 
     x = (x < MathConstants.EPSILON) ? MAX : min(MAX, pow(1 / x, 10));
     y = (y < MathConstants.EPSILON) ? MAX : min(MAX, pow(1 / y, 10));
     z = (z < MathConstants.EPSILON) ? MAX : min(MAX, pow(1 / z, 10));

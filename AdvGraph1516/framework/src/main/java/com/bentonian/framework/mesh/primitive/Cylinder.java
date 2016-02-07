@@ -26,7 +26,7 @@ public class Cylinder extends MeshPrimitiveWithTexture implements IsRayTraceable
     for (int u = 0; u < du; u++) {
       for (int v = 0; v < dv; v++) {
         double s = u * PI * 2 / du;
-        double t = v / (double) dv;
+        double t = v / (double) (dv - 1);
         vertices[u][v] = new MeshVertex(cos(s), t * 2 - 1, sin(s));
       }
     }

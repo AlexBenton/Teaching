@@ -13,7 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class SimpleFrame extends Frame {
-  
+
   private int innerWidth, innerHeight, innerTop, innerLeft;
 
   public SimpleFrame(String title) {
@@ -35,9 +35,7 @@ public class SimpleFrame extends Frame {
     });
     addKeyListener(new KeyListener() {
       @Override public void keyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE) {
-          onClose();
-        }
+        onKeyDown(keyEvent.getKeyCode());
       }
       @Override public void keyReleased(KeyEvent keyEvent) { }
       @Override public void keyTyped(KeyEvent keyEvent) { }
@@ -54,6 +52,12 @@ public class SimpleFrame extends Frame {
     innerLeft = panel.getX();
     innerTop = panel.getY();
     remove(panel);
+  }
+
+  protected void onKeyDown(int key) {
+    if (key == KeyEvent.VK_ESCAPE) {
+      onClose();
+    }
   }
 
   protected void onClose() {

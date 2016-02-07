@@ -7,8 +7,17 @@ public abstract class BufferedProceduralImageTexture extends BufferedImageTextur
   @Override
   public void bind() {
     if (textureId == 0) {
-      setBufferedImage(BufferedImageRGBCanvas.copyTextureToImage(this, 256, 256));
+      setBufferedImage(BufferedImageRGBCanvas.copyTextureToImage(
+          this, getBufferedImageWidth(), getBufferedImageHeight()));
     }
     super.bind();
+  }
+  
+  protected int getBufferedImageWidth() {
+    return 256;
+  }
+  
+  protected int getBufferedImageHeight() {
+    return 256;
   }
 }

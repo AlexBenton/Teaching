@@ -11,8 +11,10 @@ import com.bentonian.framework.ui.GLCanvas;
 
 public class BufferedImageTexture extends Texture {
 
+  public static final BufferedImageTexture AXES = new BufferedImageTexture("axes_3x3.png");
   public static final BufferedImageTexture BRICK = new BufferedImageTexture("brick.jpg");
   public static final BufferedImageTexture STEEL = new BufferedImageTexture("steel.jpg");
+  public static final BufferedImageTexture CHECKERBOARD = new BufferedImageTexture("circle-checkerboard.png");
 
   protected BufferedImage bufferedImage;
 
@@ -56,11 +58,7 @@ public class BufferedImageTexture extends Texture {
   @Override
   public M3d getColor(IsTextured target, M3d pt) {
     TexCoord tc = target.getTextureCoord(pt);
-    int rgba = sample(tc.u, tc.v);
-    int r = (rgba >> 16) & 0xFF;
-    int g = (rgba >> 8) & 0xFF;
-    int b = (rgba >> 0) & 0xFF;
-    return new M3d(r, g, b).times(1.0 / 255.0);
+    return M3d.fromRGBA(sample(tc.u, tc.v));
   }
 
   @Override

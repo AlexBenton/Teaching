@@ -13,9 +13,6 @@ import com.bentonian.framework.texture.TexCoord;
 
 public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
 
-  private static final M3d X_AXIS = new M3d(1, 0, 0);
-  private static final M3d Z_AXIS = new M3d(0, 0, 1);
-
   public Cube() {
     MeshVertex[] vertices = new MeshVertex[8];
     for (int i = 0; i < 8; i++) {
@@ -94,9 +91,9 @@ public class Cube extends MeshPrimitiveWithTexture implements IsRayTraceable {
   @Override
   public M3d getUBasis(M3d pt) {
     if (abs(abs(pt.getX()) - 1) < MathConstants.EPSILON) {
-      return Z_AXIS;
+      return MathConstants.Z_AXIS;
     } else {
-      return X_AXIS;
+      return MathConstants.X_AXIS;
     }
   }
 

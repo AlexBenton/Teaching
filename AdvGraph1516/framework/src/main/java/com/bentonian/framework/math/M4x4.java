@@ -287,7 +287,7 @@ public class M4x4 {
   }
 
   public static M4x4 perspective(double aspectRatioWidthOverHeight) {
-    return perspective(50.0 * 2.0 * Math.PI / 360.0, aspectRatioWidthOverHeight, 0.01, 20);
+    return perspective(50.0 * 2.0 * Math.PI / 360.0, aspectRatioWidthOverHeight, 0.01, 30);
   }
 
   public static M4x4 perspective(double fovY, double aspect, double zNear, double zFar) {

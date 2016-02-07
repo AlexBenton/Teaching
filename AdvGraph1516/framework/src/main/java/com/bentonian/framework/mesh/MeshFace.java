@@ -36,7 +36,7 @@ public class MeshFace extends ArrayList<MeshVertex> {
         s += "  [" + v + "]\n";
       }
       s += "only had " + size() + " vertices in face.";
-      System.err.println("WARNING: Incomplete face constructed: " + s);
+      System.err.println("ERROR: Incomplete face constructed: " + s);
     }
     for (int i = 0; i < size(); i++) {
       verts[i].addFace(this, i);
