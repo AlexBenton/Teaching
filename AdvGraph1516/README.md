@@ -44,7 +44,7 @@ Main class                                | Description
 `com.bentonian.gldemos.hierarchy`         | Recursive scene graph generates fractal geometry
 `com.bentonian.gldemos.morph`             | Interpolated animation of four parametric surfaces
 `com.bentonian.gldemos.offscreenrender`   | Simple scene showing the use of off-screen rendering
-`com.bentonian.gldemos.raytracedtexture`  | Simple raytracer demo on textured primitives
+`com.bentonian.gldemos.raytracedtexture`  | Simple raytracer demo of Signed Distance Fields
 `com.bentonian.gldemos.shaders`           | A suite of GLSL shaders applied to a suite of different models
 `com.bentonian.gldemos.subdivision`       | Loop, Doo-Sabin and Catmull-Clark subdivision
 
