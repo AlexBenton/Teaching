@@ -259,7 +259,7 @@ public class GLWindowedCanvas extends GLCanvas {
     return this;
   }
 
-  private void onResized(int width, int height) {
+  protected void onResized(int width, int height) {
     this.width = width;
     this.height = height;
 

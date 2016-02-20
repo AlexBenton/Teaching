@@ -183,29 +183,34 @@ public class GLCanvas {
   }
 
   protected void updateUniforms() {
+    Camera cameraForModelView = getCameraForModelview();
     M4x4 modelToWorld = peek();
-    M4x4 modelToCamera = camera.getParentToLocal().times(modelToWorld);
+    M4x4 modelToCamera = cameraForModelView.getParentToLocal().times(modelToWorld);
 
     testGlError();
-    updateM4x4("modelToWorld", modelToWorld);
-    updateM4x4("modelToCamera", modelToCamera);
-    updateM3x3("normalToWorld", modelToWorld.extract3x3().inverted().transposed());
-    updateM3x3("normalToCamera", modelToCamera.times(modelToWorld).extract3x3().inverted().transposed());
-    updateM4x4("modelToScreen", projection.peek().times(modelToCamera));
-    updateVec3("eyePosition", camera.getPosition());
-    updateVec3("lightPosition", getLightPosition());
+    updateUniformM4x4("modelToWorld", modelToWorld);
+    updateUniformM4x4("modelToCamera", modelToCamera);
+    updateUniformM3x3("normalToWorld", modelToWorld.extract3x3().inverted().transposed());
+    updateUniformM3x3("normalToCamera", modelToCamera.times(modelToWorld).extract3x3().inverted().transposed());
+    updateUniformM4x4("modelToScreen", projection.peek().times(modelToCamera));
+    updateUniformVec3("eyePosition", cameraForModelView.getPosition());
+    updateUniformVec3("lightPosition", getLightPosition());
   }
 
+  protected Camera getCameraForModelview() {
+    return camera;
+  }
+  
   protected void updateProjectionMatrix() {
     testGlError();
-    updateM4x4("modelToScreen", projection.peek().times(camera.getParentToLocal().times(peek())));
+    updateUniformM4x4("modelToScreen", projection.peek().times(camera.getParentToLocal().times(peek())));
   }
 
   protected M3d getLightPosition() {
     return camera.getPosition().normalized().times(1000);
   }
 
-  private void updateM4x4(String uniformName, M4x4 T) {
+  public void updateUniformM4x4(String uniformName, M4x4 T) {
     int uniform = GL20.glGetUniformLocation(program, uniformName);
     if (uniform != -1) {
       GL20.glUniformMatrix4(uniform, false, T.asFloats());
@@ -215,7 +220,7 @@ public class GLCanvas {
     }
   }
 
-  private void updateM3x3(String uniformName, M4x4 T) {
+  public void updateUniformM3x3(String uniformName, M4x4 T) {
     int uniform = GL20.glGetUniformLocation(program, uniformName);
     if (uniform != -1) {
       GL20.glUniformMatrix3(uniform, false, T.as3x3Floats());
@@ -225,7 +230,7 @@ public class GLCanvas {
     }
   }
 
-  private void updateVec3(String uniformName, M3d v) {
+  public void updateUniformVec3(String uniformName, M3d v) {
     int uniform = GL20.glGetUniformLocation(program, uniformName);
     if (uniform != -1) {
       GL20.glUniform3f(uniform, (float) v.getX(), (float) v.getY(), (float) v.getZ());
@@ -235,6 +240,40 @@ public class GLCanvas {
     }
   }
 
+  public void updateUniformVec2(String uniformName, float a, float b) {
+    int uniform = GL20.glGetUniformLocation(program, uniformName);
+    if (uniform != -1) {
+      GL20.glUniform2f(uniform, a, b);
+      testGlError();
+    } else {
+      clearGlError();
+    }
+  }
+
+  public void updateUniformFloat(String uniformName, float f) {
+    int uniform = GL20.glGetUniformLocation(program, uniformName);
+    if (uniform != -1) {
+      GL20.glUniform1f(uniform, f);
+      testGlError();
+    } else {
+      clearGlError();
+    }
+  }
+
+  public void updateUniformInt(String uniformName, int i) {
+    int uniform = GL20.glGetUniformLocation(program, uniformName);
+    if (uniform != -1) {
+      GL20.glUniform1i(uniform, i);
+      testGlError();
+    } else {
+      clearGlError();
+    }
+  }
+
+  public void updateUniformBoolean(String uniformName, boolean b) {
+    updateUniformInt(uniformName, b ? 1 : 0);
+  }
+  
   private static int loadDefaultShaderProgram() {
     int vsName = loadShader(GL20.GL_VERTEX_SHADER, GLCanvas.class, "default.vsh");
     int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, GLCanvas.class, "default.fsh");

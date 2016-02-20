@@ -28,7 +28,7 @@ import com.google.common.collect.Sets;
  */
 
 public class Octree {
-  
+
   public enum State {
     UNEXAMINED,
     REFINED,
@@ -79,7 +79,7 @@ public class Octree {
   private boolean isOdd;
   private State state = State.UNEXAMINED;
 
-  Octree(ImplicitSurface surface, Octree parent, int level, Sample[][][] coords, 
+  Octree(ImplicitSurface surface, Octree parent, int level, Sample[][][] coords,
       int x, int y, int z, Set<M3d> possibleTargets) {
     this.isOdd = (((x+y+z)&1) != 0);
     this.surface = surface;
@@ -125,7 +125,7 @@ public class Octree {
       addPolygonsFromInterestingEdges(arr, crossings);
     }
   }
-  
+
   private void addPolygonsFromInterestingEdges(OctreeEdgeInterpolationData[] arr, int crossings) {
     if (crossings == 4) {
       boolean zeroOneAdjacent = arr[0].hasSharedEndPoint(arr[1]);
@@ -320,15 +320,15 @@ public class Octree {
   M3d getMax() {
     return corners[1][1][1];
   }
-  
+
   State getState() {
     return state;
   }
-  
+
   void setState(State state) {
     this.state = state;
   }
-  
+
   Octree getParent() {
     return parent;
   }

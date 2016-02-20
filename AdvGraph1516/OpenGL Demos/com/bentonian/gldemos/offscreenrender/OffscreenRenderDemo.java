@@ -59,6 +59,8 @@ public class OffscreenRenderDemo extends DemoApp {
     SPHERE.render(this);
   }
   
+  /////////////////////////////////////////////////////////////////////////////
+  
   public static void main(String[] args) {
     new OffscreenRenderDemo().run();
   }
