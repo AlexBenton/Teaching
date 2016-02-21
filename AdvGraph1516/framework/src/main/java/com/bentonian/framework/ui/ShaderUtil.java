@@ -124,7 +124,6 @@ public class ShaderUtil {
   private static int loadShaderWithoutChecks(int shaderType, String name, List<String> lines) {
     int shader = glCreateShader(shaderType);
     glShaderSource(shader, lines.toArray(new String[]{}));
-    testGlError();
     glCompileShader(shader);
     return shader;
   }
@@ -156,6 +155,8 @@ public class ShaderUtil {
   private static List<TrackedFileLine> readGlslWithInclude(Reader reader, String resourceName) {
     List<String> lines = reader.read(resourceName);
     List<TrackedFileLine> trackedLines = Lists.newArrayList();
+    String root = resourceName.contains("/") 
+        ? resourceName.substring(0, resourceName.lastIndexOf('/') + 1) : "";
     int i = 0;
 
     for (String line : lines) {
@@ -163,7 +164,7 @@ public class ShaderUtil {
         trackedLines.add(new TrackedFileLine(line, resourceName, i++));
       } else {
         trackedLines.addAll(readGlslWithInclude(reader, 
-            line.trim().replace("#include ", "").replace("\"", "")));
+            root + line.trim().replace("#include ", "").replace("\"", "")));
       }
     }
     return trackedLines;
@@ -171,10 +172,10 @@ public class ShaderUtil {
 
   private static void checkShaderWithLineErrors(
       int shader, String description, List<TrackedFileLine> tracked) {
-    testGlError();
     String infolog = getShaderErrors(shader);
     if (!Strings.isNullOrEmpty(infolog)) {
-      System.out.println("Info log for shader '" + description + "' (ID " + shader + "):");
+      StringBuilder builder = new StringBuilder();
+      
       for (String infoLine : infolog.split("\n")) {
         if (infoLine.startsWith("0(") && infoLine.indexOf(")") > infoLine.indexOf("(")) {
           int n = Integer.valueOf(infoLine.substring(infoLine.indexOf("(") + 1, infoLine.indexOf(")")));
@@ -182,10 +183,9 @@ public class ShaderUtil {
             infoLine = infoLine + "(" + tracked.get(n).lineSource + ":" + (tracked.get(n).lineNumber + 2) + ")";
           }
         }
-        System.out.println(infoLine);
+        builder.append(infoLine + "\n");
       }
-      new RuntimeException().printStackTrace();
-      System.exit(-1);
+      throw new RuntimeException(builder.toString());
     }
   }
 

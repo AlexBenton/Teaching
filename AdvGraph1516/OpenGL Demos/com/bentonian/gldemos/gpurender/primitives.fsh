@@ -42,17 +42,16 @@ vec4 raymarch(vec3 rayorig, vec3 raydir) {
   return vec4(pos, float(step));
 }
 
-vec3 illuminate(vec3 pt, vec3 rayorig) {
+vec3 shade(vec3 pt, vec3 rayorig) {
   vec3 normal = normalize(gradient(pt));
-  float diff = diffuse(pt.xyz, normal, lightPos);
   vec3 color = (abs(pt.z - sin(iGlobalTime)) < 0.01) ? getDistanceColor(pt, f(pt))  : white;
-  return (0.25 + diff) * color;
+  return color * (0.25 + illuminate(pt, normal, rayorig, lightPos));
 }
 
 vec3 scene(vec3 rayorig, vec3 raydir) {
   vec4 res = raymarch(rayorig, raydir);  
   return (res.w < renderDepth)
-      ? illuminate(res.xyz, rayorig)
+      ? shade(res.xyz, rayorig)
       : background;
 }
 

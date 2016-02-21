@@ -4,6 +4,8 @@ import static com.bentonian.framework.ui.ShaderUtil.compileProgram;
 import static com.bentonian.framework.ui.ShaderUtil.loadShader;
 import static com.bentonian.framework.ui.ShaderUtil.testGlError;
 
+import java.io.File;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL20;
 
@@ -14,20 +16,23 @@ import com.bentonian.framework.ui.DemoApp;
 
 public class GPURenderDemo extends DemoApp {
 
-  private static final String[] SHADERS = { "refraction.fsh", "primitives.fsh", "noise.fsh", "sdf.fsh", "sdf-blobbies.fsh" };
-  
+  private static final String[] SHADERS = { "reflection and refraction.fsh", "primitives.fsh", "noise.fsh", "sdf.fsh", "sdf-blobbies.fsh" };
+
   private final Square square;
 
-  private int program;
+  private int activeProgram;
   private Camera frozenCamera;
   private boolean showRenderDepth;
   private boolean paused;
   private int currentShader;
   private long elapsed, lastTick;
 
+  private volatile long lastFailedTimestamp = 0;
+  private volatile long lastLoadedTimestamp = 0;
+
   protected GPURenderDemo() {
     super("GPU Render");
-    this.program = -1;
+    this.activeProgram = -1;
     this.square = new Square();
     this.square.setHasTexture(true);
     this.currentShader = 0;
@@ -38,17 +43,21 @@ public class GPURenderDemo extends DemoApp {
     setCameraDistance(2.15);
     this.frozenCamera = new Camera(getCamera());
     animateCameraToPosition(new M3d(20, 10, 20));
-  }
 
-  @Override
-  protected void initGl() {
-    super.initGl();
-    loadShaderProgram(SHADERS[currentShader]);
+    new Reloader().start();
   }
 
   @Override
   protected Camera getCameraForModelview() {
     return frozenCamera;
+  }
+
+  @Override
+  public void preDraw() {
+    if (lastLoadedTimestamp == 0) {
+      loadShaderProgram(SHADERS[currentShader]);
+    }
+    super.preDraw();
   }
 
   @Override
@@ -74,7 +83,7 @@ public class GPURenderDemo extends DemoApp {
     super.onResized(width, height);
     square.setIdentity();
     square.scale(new M3d(width / (float) height, 1, 1));
-    if (program != -1) {
+    if (activeProgram != -1) {
       updateUniformVec2("iResolution", (float) width, (float) height);
     }
   }
@@ -106,13 +115,64 @@ public class GPURenderDemo extends DemoApp {
   }
 
   private void loadShaderProgram(String fragmentShaderFilename) {
-    int vsName = loadShader(GL20.GL_VERTEX_SHADER, GPURenderDemo.class, "basic.vsh");
-    int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, GPURenderDemo.class, fragmentShaderFilename);
+    try {
+      String root = getRoot();
+      int vsName = loadShader(GL20.GL_VERTEX_SHADER, root + "basic.vsh");
+      int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, root + fragmentShaderFilename);
 
-    program = compileProgram(vsName, fsName);
-    testGlError();
-    useProgram(program);
-    updateUniformVec2("iResolution", (float) getWidth(), (float) getHeight());
+      int prog = compileProgram(vsName, fsName);
+      testGlError();
+      useProgram(prog);
+      activeProgram = prog;
+      updateUniformVec2("iResolution", (float) getWidth(), (float) getHeight());
+      System.out.println("Succesfully loaded '" + fragmentShaderFilename + "'");
+      lastLoadedTimestamp = getCurrentShaderTimestamp();
+      lastFailedTimestamp = 0;
+    } catch (RuntimeException e) {
+      if (e.getMessage() != null) {
+        System.err.println(e.getMessage());
+      } else if (e instanceof NullPointerException) {
+        System.out.println("File not found: '" + fragmentShaderFilename + "'");
+      } else {
+        System.out.println("Unspecified error while loading '" + fragmentShaderFilename + "'");
+        e.printStackTrace();
+      }
+      lastLoadedTimestamp = -1;
+      lastFailedTimestamp = getCurrentShaderTimestamp();
+    }
+  }
+
+  private String getRoot() {
+    return GPURenderDemo.class.getPackage().getName().replace(".", "/") + "/";
+  }
+
+  private synchronized long getCurrentShaderTimestamp() {
+    try {
+      return new File(getRoot() + SHADERS[currentShader]).lastModified();
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+  
+  private class Reloader extends Thread {
+    @Override
+    public void run() {
+      while (!exitRequested) {
+        if (lastLoadedTimestamp != 0 || lastFailedTimestamp != 0) {
+          long timestamp = getCurrentShaderTimestamp();
+          if (timestamp != -1) {
+            if ((lastFailedTimestamp != 0 && lastFailedTimestamp != timestamp)
+                || (lastFailedTimestamp == 0 && lastLoadedTimestamp != timestamp)) {
+              lastLoadedTimestamp = 0;
+              lastFailedTimestamp = 0;
+            }
+          }
+        }
+        try {
+          Thread.sleep(500);
+        } catch (InterruptedException e) { }
+      }
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////

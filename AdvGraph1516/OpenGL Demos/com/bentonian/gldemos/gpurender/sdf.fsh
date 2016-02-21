@@ -65,11 +65,10 @@ float getShadow(vec3 pt) {
   return kd;
 }
 
-vec3 illuminate(vec3 pt, vec3 rayorig) {
+vec3 shade(vec3 pt, vec3 rayorig) {
   vec3 color = (abs(pt.y + 1) < 0.001) ? getDistanceColor(pt, getSdf(pt)) : white;
-  vec3 gradient = getGradient(pt);
-  float diff = diffuse(pt.xyz, normalize(gradient), lightPos) * getShadow(pt);  
-  return (0.25 + diff) * color;
+  vec3 normal = normalize(getGradient(pt));
+  return color * illuminate(pt, normal, rayorig, lightPos) * (0.25 + getShadow(pt));
 }
 
 vec3 scene(vec3 rayorig, vec3 raydir) {
@@ -78,7 +77,7 @@ vec3 scene(vec3 rayorig, vec3 raydir) {
   return iShowRenderDepth
       ? vec3(float(res.w) / 50.0)
       : (res.w < renderDepth)
-          ? illuminate(res.xyz, rayorig)
+          ? shade(res.xyz, rayorig)
           : background;
 }
 

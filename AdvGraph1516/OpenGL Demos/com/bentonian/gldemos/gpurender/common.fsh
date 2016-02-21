@@ -133,13 +133,19 @@ vec3 getDistanceColor(vec3 pt, float d) {
   return color;
 }
 
-float diffuse(vec3 point, vec3 normal, vec3 lightPos) {
-  return clamp(dot(normal, normalize(lightPos - point)), 0.0, 1.0);
+float diffuse(vec3 pt, vec3 normal, vec3 light) {
+  return clamp(dot(normal, normalize(light - pt)), 0.0, 1.0);
 }
 
-float specular(vec3 point, vec3 normal, vec3 lightPos, vec3 eyePos) {
-  vec3 l = normalize(lightPos - point);
+float specular(vec3 pt, vec3 normal, vec3 light, vec3 eye) {
+  vec3 l = normalize(light - pt);
   vec3 r = reflect(-l, normal);
-  vec3 e = normalize(eyePos - point);
+  vec3 e = normalize(eye - pt);
   return dot(l, normal) > 0 ? clamp(pow(dot(r, e), 16), 0.0, 1.0) : 0;
+}
+
+float illuminate(vec3 pt, vec3 normal, vec3 eye, vec3 light) {
+  float diff = diffuse(pt, normal, light);
+  float spec = specular(pt, normal, light, eye);
+  return diff + spec;
 }

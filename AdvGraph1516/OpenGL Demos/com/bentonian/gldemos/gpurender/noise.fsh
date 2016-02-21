@@ -35,7 +35,7 @@ vec4 raymarch(vec3 rayorig, vec3 raydir) {
   return vec4(pos, float(step));
 }
 
-vec3 illuminate(vec3 pt, vec3 rayorig) {
+vec3 shade(vec3 pt, vec3 rayorig) {
   vec3 normal = normalize(gradient(pt));
   vec3 color = white;
   if (dot(normal, rayorig - pt) < 0) {
@@ -45,8 +45,7 @@ vec3 illuminate(vec3 pt, vec3 rayorig) {
   if (abs(length(rayorig-pt) - 20) < 0.1) {
     color = red;
   }
-  float diff = diffuse(pt, normal, lightPos);
-  return (0.25 + diff) * color;
+  return color * (0.25 + illuminate(pt, normal, rayorig, lightPos));
 }
 
 vec3 scene(vec3 rayorig, vec3 raydir) {
@@ -54,7 +53,7 @@ vec3 scene(vec3 rayorig, vec3 raydir) {
   return iShowRenderDepth
       ? vec3(float(res.w) / 50.0)
       : (res.w < renderDepth)
-          ? illuminate(res.xyz, rayorig)
+          ? shade(res.xyz, rayorig)
           : background;
 }
 
