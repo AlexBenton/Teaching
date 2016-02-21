@@ -120,19 +120,6 @@ public class Camera {
     return Math.sin(FOV * Math.PI / 360.0) * 2.0;
   }
 
-  public void straighten() {
-    M3d up = getUp();
-    M3d dir = getDirection();
-    M3d planeNormal = dir.cross(new M3d(0, 1, 0));
-    M3d targetUp = planeNormal.cross(dir).normalized();
-    M3d center = getPosition();
-    double sign = (targetUp.cross(up).dot(dir) >= 0) ? 1 : -1;
-    double theta = sign * Math.acos(targetUp.dot(up));
-    translate(center.times(-1));
-    rotate(dir, theta);
-    translate(center);
-  }
-
   private Transformable peek() {
     return stack.get(stack.size() - 1);
   }
