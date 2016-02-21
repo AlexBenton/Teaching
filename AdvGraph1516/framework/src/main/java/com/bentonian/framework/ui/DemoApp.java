@@ -1,5 +1,8 @@
 package com.bentonian.framework.ui;
 
+import static com.bentonian.framework.math.MathConstants.X_AXIS;
+import static com.bentonian.framework.math.MathConstants.Y_AXIS;
+
 import java.awt.Point;
 import java.io.File;
 import java.util.Set;
@@ -57,7 +60,7 @@ public class DemoApp extends GLWindowedApp {
   }
   
   public void animateCameraToPosition(M3d dest) {
-    animateCameraToPosition(dest, new M3d(0, 1, 0));
+    animateCameraToPosition(dest, Y_AXIS);
   }
 
   public void animateCameraToPosition(M3d dest, M3d up) {
@@ -114,22 +117,22 @@ public class DemoApp extends GLWindowedApp {
         default:
           break;
         case Keyboard.KEY_NEXT:
-          setCameraDistance(getCameraDistance() + step);
+          setCameraDistance(getCameraDistance() + 8 * step);
           break;
         case Keyboard.KEY_PRIOR:
-          setCameraDistance(getCameraDistance() - step);
+          setCameraDistance(getCameraDistance() - 8 * step);
           break;
         case Keyboard.KEY_LEFT:
-          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new M3d(0, 1, 0)), -step);
+          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(Y_AXIS), -step);
           break;
         case Keyboard.KEY_RIGHT:
-          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new M3d(0, 1, 0)), step);
+          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(Y_AXIS), step);
           break;
         case Keyboard.KEY_UP:
-          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new M3d(1, 0, 0)), -step);
+          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(X_AXIS), -step);
           break;
         case Keyboard.KEY_DOWN:
-          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new M3d(1, 0, 0)), step);
+          getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(X_AXIS), step);
           break;
         }
       }

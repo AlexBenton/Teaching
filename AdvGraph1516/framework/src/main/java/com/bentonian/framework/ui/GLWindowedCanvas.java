@@ -1,8 +1,16 @@
 package com.bentonian.framework.ui;
 
+import static com.bentonian.framework.math.MathConstants.X_AXIS;
+import static com.bentonian.framework.math.MathConstants.Y_AXIS;
+import static com.bentonian.framework.math.MathConstants.Z_AXIS;
 import static com.bentonian.framework.ui.ShaderUtil.testGlError;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.ContextAttribs;
@@ -35,6 +43,9 @@ public class GLWindowedCanvas extends GLCanvas {
   private MouseEventHandler currentMouseCaptureHandler;
   private MouseEventHandler currentMouseOverHandler;
 
+  private Controller spacemouse = null;
+  private M3d spacemouseStartingAxisValue, spacemouseStartingRotationValue;
+
   @Override
   protected void initGl() {
     try {
@@ -47,6 +58,32 @@ public class GLWindowedCanvas extends GLCanvas {
       throw new RuntimeException(e);
     }
 
+    try {
+      // net.java.games.input is very noisy during setup, so disable stderr.
+      // If this doesn't work, we just don't have a controller.
+      PrintStream original = System.err;
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override public void write(int b) { /* do nothing */ } }));
+      Controllers.create();
+      System.setErr(original);
+      
+      int numberOfControllers = Controllers.getControllerCount();
+
+      for (int i = 0; i < numberOfControllers; i++ ) {
+        Controller c = Controllers.getController(i);
+        if (c.getName().toLowerCase().contains("SpaceMouse".toLowerCase())) {
+          spacemouse = c;
+          spacemouseStartingAxisValue = 
+              new M3d(c.getXAxisValue(), c.getYAxisValue(), c.getZAxisValue());
+          spacemouseStartingRotationValue = 
+              new M3d(c.getRXAxisValue(), c.getRYAxisValue(), c.getRZAxisValue());
+          break;
+        }
+      }
+    } catch (LWJGLException e) {
+      // No worries, mate.
+    }
+    
     super.initGl();
     testGlError();
 
@@ -115,7 +152,7 @@ public class GLWindowedCanvas extends GLCanvas {
     if (Display.wasResized() && (Display.getWidth() != width || Display.getHeight() != height)) {
       onResized(Display.getWidth(), Display.getHeight());
     }
-
+    
     while (Keyboard.next()) {
       if (Keyboard.getEventKeyState()) {
         onKeyDown(Keyboard.getEventKey());
@@ -145,6 +182,35 @@ public class GLWindowedCanvas extends GLCanvas {
         onMouseWheel(dWheel);
       }
     }
+
+    if (getCanUseSpacemouse()) {
+      if (Math.abs(spacemouse.getRXAxisValue()) >= spacemouse.getRXAxisDeadZone()) {
+        getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(X_AXIS), -spacemouse.getRXAxisValue() / 50.0);
+      }
+      if (Math.abs(spacemouse.getRYAxisValue()) >= spacemouse.getRYAxisDeadZone()) {
+        getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(Z_AXIS), -spacemouse.getRYAxisValue() / 50.0);
+      }
+      if (Math.abs(spacemouse.getRZAxisValue()) >= spacemouse.getRZAxisDeadZone()) {
+        getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(Y_AXIS), spacemouse.getRZAxisValue() / 50.0);
+      }
+    }
+  }
+  
+  private boolean getCanUseSpacemouse() {
+    if (spacemouse != null) {
+      spacemouse.poll();
+      if (spacemouseStartingAxisValue == null || spacemouseStartingRotationValue == null
+          || spacemouseStartingAxisValue.getX() != spacemouse.getXAxisValue()
+          || spacemouseStartingAxisValue.getY() != spacemouse.getYAxisValue()
+          || spacemouseStartingAxisValue.getZ() != spacemouse.getZAxisValue()
+          || spacemouseStartingRotationValue.getX() != spacemouse.getRXAxisValue()
+          || spacemouseStartingRotationValue.getY() != spacemouse.getRYAxisValue()
+          || spacemouseStartingRotationValue.getZ() != spacemouse.getRZAxisValue()) {
+        spacemouseStartingAxisValue = spacemouseStartingRotationValue = null;
+        return true;
+      }
+    }
+    return false;
   }
 
   private void deliverOnMouseDown(int x, int y, int mouseButton) {
