@@ -41,6 +41,7 @@ Main class                                | Description
 ------------------------------------------|------------
 `com.bentonian.gldemos.bezier`            | Bivariate 4x4 Bezier patch
 `com.bentonian.gldemos.blobby`            | Implicit surface ("Blobby") model animation
+`com.bentonian.gldemos.gpurender`         | Examples of sphere-marched signed distance field geometry
 `com.bentonian.gldemos.hierarchy`         | Recursive scene graph generates fractal geometry
 `com.bentonian.gldemos.morph`             | Interpolated animation of four parametric surfaces
 `com.bentonian.gldemos.offscreenrender`   | Simple scene showing the use of off-screen rendering
@@ -75,6 +76,15 @@ Key        | Command
 Key        | Command
 -----------|---------
 `r`        | Ray trace current view
+
+`GPURenderDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`4`        | Move camera to a view of all three axes
+`Space`   | Pause animations
+`[`        | Go to previous scene
+`]`        | Go to next scene
 
 `ShaderDemo` also accepts the following keys:
 
