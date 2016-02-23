@@ -149,3 +149,9 @@ float illuminate(vec3 pt, vec3 normal, vec3 eye, vec3 light) {
   float spec = specular(pt, normal, light, eye);
   return diff + spec;
 }
+
+#define GRADIENT(pt, func) vec3( \
+    func(vec3(pt.x + 0.0001, pt.y, pt.z)) - func(vec3(pt.x - 0.0001, pt.y, pt.z)), \
+    func(vec3(pt.x, pt.y + 0.0001, pt.z)) - func(vec3(pt.x, pt.y - 0.0001, pt.z)), \
+    func(vec3(pt.x, pt.y, pt.z + 0.0001)) - func(vec3(pt.x, pt.y, pt.z - 0.0001)))
+

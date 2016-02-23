@@ -156,7 +156,8 @@ public class ShaderUtil {
     List<String> lines = reader.read(resourceName);
     List<TrackedFileLine> trackedLines = Lists.newArrayList();
     String root = resourceName.contains("/") 
-        ? resourceName.substring(0, resourceName.lastIndexOf('/') + 1) : "";
+        ? resourceName.substring(0, resourceName.lastIndexOf('/') + 1) 
+        : "include/";
     int i = 0;
 
     for (String line : lines) {

@@ -1,6 +1,6 @@
 #version 330
 
-#include "common.fsh"
+#include "include/common.fsh"
 
 uniform bool iShowRenderDepth;
 
@@ -23,14 +23,6 @@ float getSdf(vec3 p) {
 
 float getSdfWithPlane(vec3 p) {
   return min(getSdf(p), sdPlane(p, vec4(0,1,0,1)));
-}
-
-vec3 getGradient(vec3 pt) {
-  vec3 off = vec3(0.0001, 0, 0);
-  return vec3(
-    getSdfWithPlane(pt + off.xyz) - getSdfWithPlane(pt - off.xyz),
-    getSdfWithPlane(pt + off.yxz) - getSdfWithPlane(pt - off.yxz),
-    getSdfWithPlane(pt + off.yzx) - getSdfWithPlane(pt - off.yzx));
 }
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
@@ -67,7 +59,7 @@ float getShadow(vec3 pt) {
 
 vec3 shade(vec3 pt, vec3 rayorig) {
   vec3 color = (abs(pt.y + 1) < 0.001) ? getDistanceColor(pt, getSdf(pt)) : white;
-  vec3 normal = normalize(getGradient(pt));
+  vec3 normal = normalize(GRADIENT(pt, getSdfWithPlane));
   return color * illuminate(pt, normal, rayorig, lightPos) * (0.25 + getShadow(pt));
 }
 

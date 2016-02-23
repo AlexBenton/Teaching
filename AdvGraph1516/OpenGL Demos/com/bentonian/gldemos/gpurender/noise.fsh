@@ -1,7 +1,7 @@
 #version 330
 
-#include "common.fsh"
-#include "noise3D.fsh"
+#include "include/common.fsh"
+#include "include/noise3D.fsh"
 
 uniform bool iShowRenderDepth;
 
@@ -11,14 +11,6 @@ const vec3 lightPos = vec3(0, 10, 10);
 float f(vec3 pt) {
   float noise = snoise(pt / 128) + snoise(pt / 32) + snoise(pt / 8);
   return noise + 0.7;
-}
-
-vec3 gradient(vec3 pt) {
-  vec3 off = vec3(0.0001, 0, 0);
-  return vec3(
-    f(pt + off.xyz) - f(pt - off.xyz),
-    f(pt + off.yxz) - f(pt - off.yxz),
-    f(pt + off.yzx) - f(pt - off.yzx));
 }
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
@@ -36,7 +28,7 @@ vec4 raymarch(vec3 rayorig, vec3 raydir) {
 }
 
 vec3 shade(vec3 pt, vec3 rayorig) {
-  vec3 normal = normalize(gradient(pt));
+  vec3 normal = normalize(GRADIENT(pt, f));
   vec3 color = white;
   if (dot(normal, rayorig - pt) < 0) {
     normal = -normal;

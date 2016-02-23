@@ -117,7 +117,7 @@ public class GPURenderDemo extends DemoApp {
   private void loadShaderProgram(String fragmentShaderFilename) {
     try {
       String root = getRoot();
-      int vsName = loadShader(GL20.GL_VERTEX_SHADER, root + "basic.vsh");
+      int vsName = loadShader(GL20.GL_VERTEX_SHADER, root + "include/basic.vsh");
       int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, root + fragmentShaderFilename);
 
       int prog = compileProgram(vsName, fsName);
