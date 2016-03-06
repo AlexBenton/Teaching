@@ -115,6 +115,26 @@ public class FileUtil {
       return false;
     }
   }
+  
+  public static long getFileTimestampHash(String path) {
+    try {
+      return new File(path).lastModified();
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+
+  public static long getDirectoryTimestampHash(String path) {
+    try {
+      long val = 0;
+      for (File f : new File(path).listFiles()) {
+        val ^= f.lastModified();
+      }
+      return val;
+    } catch (Exception e) {
+      return -1;
+    }
+  }
 
   /////////////////////////////////////////////////////////////////////////////
 

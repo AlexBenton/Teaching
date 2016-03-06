@@ -31,6 +31,8 @@ struct TBD {
   float weight;
 };
 
+#define REFRACTIVE_INDEX_OF_AIR 1.000277
+
 ////////////////////////////////////////////////////////////////////
 // Forward declarations, must be implemented
 
@@ -62,16 +64,19 @@ float shadow(vec3 pt) {
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
   int step = 0;
-  vec3 pos = rayorig;
-  float d = f(pos);
+  vec3 pt;
+  float d = 1;
 
-  while (abs(d) > 0.001 && step < renderDepth) {
-    pos = pos + raydir * abs(d);
-    d = f(pos);
+  for (float t = 0.001; step < renderDepth && d > 0.00001; t += d) {
+    float sdf;
+    
+    pt = rayorig + t * raydir;
+    sdf = f(pt);
+    d = abs(sdf);
     step++;
   }
 
-  return vec4(pos, float(step));
+  return vec4(pt, float(step));
 }
 
 vec3 renderScene(vec3 rayorig, vec3 raydir) {
@@ -97,8 +102,9 @@ vec3 renderScene(vec3 rayorig, vec3 raydir) {
       cumulativeColor += weight * material.mat.x * illumination * material.color;
       if (material.mat.y > 0) {
         vec3 refractNormal = normalSign * normal;
-        vec3 refractPt = pt + 2 * max(0.001, abs(material.sdf)) * refractNormal;
-        vec3 refractDir = refract(dir, -refractNormal, (normalSign < 0) ? (1.000277 / material.mat.w) : (material.mat.w / 1.000277));
+        vec3 refractPt = pt + 2 * max(0.0001, abs(material.sdf)) * refractNormal;
+        vec3 refractDir = refract(dir, -refractNormal, 
+            (normalSign < 0) ? (REFRACTIVE_INDEX_OF_AIR / material.mat.w) : (material.mat.w / REFRACTIVE_INDEX_OF_AIR));
         tbd[numTbd++] = TBD(refractPt, refractDir, weight * material.mat.y);
       }
       if (material.mat.z > 0) {

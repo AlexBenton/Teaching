@@ -4,11 +4,10 @@ import static com.bentonian.framework.ui.ShaderUtil.compileProgram;
 import static com.bentonian.framework.ui.ShaderUtil.loadShader;
 import static com.bentonian.framework.ui.ShaderUtil.testGlError;
 
-import java.io.File;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL20;
 
+import com.bentonian.framework.io.FileUtil;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.mesh.primitive.Square;
 import com.bentonian.framework.scene.Camera;
@@ -16,7 +15,7 @@ import com.bentonian.framework.ui.DemoApp;
 
 public class GPURenderDemo extends DemoApp {
 
-  private static final String[] SHADERS = { "reflection and refraction.fsh", "primitives.fsh", "noise.fsh", "sdf.fsh", "sdf-blobbies.fsh" };
+  private static final String[] SHADERS = { "refractive blobbies.fsh", "reflection and refraction.fsh", "primitives.fsh", "noise.fsh", "dancing cubes.fsh" };
 
   private final Square square;
 
@@ -147,13 +146,10 @@ public class GPURenderDemo extends DemoApp {
   }
 
   private synchronized long getCurrentShaderTimestamp() {
-    try {
-      return new File(getRoot() + SHADERS[currentShader]).lastModified();
-    } catch (Exception e) {
-      return -1;
-    }
+    return FileUtil.getFileTimestampHash(getRoot() + SHADERS[currentShader])
+        ^ FileUtil.getDirectoryTimestampHash(getRoot() + "include/");
   }
-  
+
   private class Reloader extends Thread {
     @Override
     public void run() {

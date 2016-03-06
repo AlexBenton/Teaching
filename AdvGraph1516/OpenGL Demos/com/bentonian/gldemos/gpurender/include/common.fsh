@@ -53,19 +53,6 @@ float smin( float a, float b) {
   return mix( b, a, h ) - k * h * (1.0 - h);
 }
 
-// Blinn's metaballs
-const float a = 1;
-const float b = 3;
-float getMetaball(vec3 p, vec3 v) {
-  float r = length(p - v);
-  if (r < b / 3) {
-    return a * (1 - 3 * r * r / b * b);
-  } else if (r < b) {
-    return (3 * a / 2) * (1 - r / b) * (1 - r / b);
-  } else {
-    return 0;
-  }
-}
 
 // Generalized Distance Functions - Akleman, Chen 1999
 // http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.90.803&rep=rep1&type=pdf
