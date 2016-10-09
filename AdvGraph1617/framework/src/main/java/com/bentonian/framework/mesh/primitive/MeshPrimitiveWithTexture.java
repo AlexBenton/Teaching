@@ -2,8 +2,8 @@ package com.bentonian.framework.mesh.primitive;
 
 import com.bentonian.framework.material.Material;
 import com.bentonian.framework.math.M3d;
-import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.Mesh;
+import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.texture.IsTextured;
 import com.bentonian.framework.texture.Texture;
 import com.bentonian.framework.ui.GLCanvas;
@@ -19,6 +19,36 @@ public abstract class MeshPrimitiveWithTexture extends MeshPrimitive implements 
   public MeshPrimitiveWithTexture setTexture(Texture texture) {
     this.texture = texture;
     setHasTexture(texture != null);
+    return this;
+  }
+
+  @Override
+  public MeshPrimitiveWithTexture setIdentity() {
+    super.setIdentity();
+    return this;
+  }
+
+  @Override
+  public MeshPrimitiveWithTexture translate(M3d v) {
+    super.translate(v);
+    return this;
+  }
+
+  @Override
+  public MeshPrimitiveWithTexture rotate(M3d axis, double d) {
+    super.rotate(axis, d);
+    return this;
+  }
+
+  @Override
+  public MeshPrimitiveWithTexture scale(M3d v) {
+    super.scale(v);
+    return this;
+  }
+
+  @Override
+  public MeshPrimitiveWithTexture scale(double d) {
+    super.scale(d);
     return this;
   }
 

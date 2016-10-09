@@ -30,7 +30,7 @@ public class GLCanvas {
   protected final MatrixStack projection;
   protected final MatrixStack modelStack;
 
-  private int program;
+  private int program = -1;
   private Stack<Integer> programStack;
 
   public GLCanvas() {

@@ -31,26 +31,22 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
   /**
    * Copy the pixels of the current OpenGL context into a BufferedImage.
    */
-  public static BufferedImageRGBCanvas copyOpenGlContextToImage(
-      int sourceWidth, int sourceHeight, int destWidth, int destHeight) {
+  public static BufferedImageRGBCanvas copyOpenGlContextToImage(int sourceWidth, int sourceHeight,
+      int destWidth, int destHeight) {
 
     // Create and fill a ByteBuffer with the frame data.
-    ByteBuffer pixels = ByteBuffer.allocateDirect(sourceWidth * sourceHeight
-        * 4);
+    ByteBuffer pixels = ByteBuffer.allocateDirect(sourceWidth * sourceHeight * 4);
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-    GL11.glReadPixels(0, 0, sourceWidth, sourceHeight, GL11.GL_RGBA,
-        GL11.GL_UNSIGNED_BYTE, pixels);
+    GL11.glReadPixels(0, 0, sourceWidth, sourceHeight, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 
     GL11.glReadBuffer(GL11.GL_BACK);
-    return copyPixelsToImage(pixels, sourceWidth, sourceHeight, destWidth,
-        destHeight);
+    return copyPixelsToImage(pixels, sourceWidth, sourceHeight, destWidth, destHeight);
   }
 
   /**
    * Copy pixels, optionally flipping them vertically.
    */
-  public static BufferedImageRGBCanvas copyFrameBufferToImage(
-      GLFrameBuffer framebuffer) {
+  public static BufferedImageRGBCanvas copyFrameBufferToImage(GLFrameBuffer framebuffer) {
     int width = framebuffer.getWidth();
     int height = framebuffer.getHeight();
 
@@ -58,26 +54,22 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
     ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 4);
     GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, framebuffer.getTextureId());
-    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA,
-        GL11.GL_UNSIGNED_BYTE, pixels);
-    BufferedImageRGBCanvas image = copyPixelsToImage(pixels, width, height,
-        width, height);
+    GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+    BufferedImageRGBCanvas image = copyPixelsToImage(pixels, width, height, width, height);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     return image;
   }
 
-  private static BufferedImageRGBCanvas copyPixelsToImage(ByteBuffer pixels,
-      int sourceWidth, int sourceHeight, int destWidth, int destHeight) {
+  private static BufferedImageRGBCanvas copyPixelsToImage(ByteBuffer pixels, int sourceWidth,
+      int sourceHeight, int destWidth, int destHeight) {
     final boolean flipVertically = true;
 
     // Transform the buffer into colored texture pixels
-    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(destWidth,
-        destHeight);
+    BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(destWidth, destHeight);
     for (int y = 0; y < destHeight; y++) {
       for (int x = 0; x < destWidth; x++) {
         int i = x * sourceWidth / destWidth;
-        int j = (flipVertically ? (destHeight - 1) - y : y) * sourceHeight
-            / destHeight;
+        int j = (flipVertically ? (destHeight - 1) - y : y) * sourceHeight / destHeight;
         int r = pixels.get(((j * sourceWidth) + i) * 4 + 0) & 0x000000FF;
         int g = pixels.get(((j * sourceWidth) + i) * 4 + 1) & 0x000000FF;
         int b = pixels.get(((j * sourceWidth) + i) * 4 + 2) & 0x000000FF;
@@ -92,14 +84,12 @@ public class BufferedImageRGBCanvas extends BufferedImage implements RGBCanvas {
   /**
    * Sample the pixels of the given Texture into a BufferedImage.
    */
-  public static BufferedImageRGBCanvas copyTextureToImage(Texture texture,
-      int width, int height) {
+  public static BufferedImageRGBCanvas copyTextureToImage(Texture texture, int width, int height) {
     M3d LL = new M3d(-1, -1, 0);
     Square canvas = new Square();
     canvas.setTexture(texture);
     BufferedImageRGBCanvas image = new BufferedImageRGBCanvas(width, height);
-    int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer())
-        .getData();
+    int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < width; y++) {

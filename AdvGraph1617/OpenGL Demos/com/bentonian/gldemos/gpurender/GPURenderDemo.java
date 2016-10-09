@@ -14,11 +14,10 @@ import com.bentonian.framework.ui.DemoApp;
 
 public class GPURenderDemo extends DemoApp {
 
-  private static final String[] SHADERS = { "voronoi cells.fsh", "refractive blobbies.fsh", "reflection and refraction.fsh", "primitives.fsh", "noise.fsh", "dancing cubes.fsh" };
+  private static final String[] SHADERS = { "dancing cubes.fsh", "voronoi cells.fsh", "refractive blobbies.fsh", "reflection and refraction.fsh", "primitives.fsh", "noise.fsh" };
 
   private final Square square;
 
-  private int activeProgram;
   private Camera frozenCamera;
   private boolean showRenderDepth;
   private boolean paused;
@@ -30,7 +29,6 @@ public class GPURenderDemo extends DemoApp {
 
   protected GPURenderDemo() {
     super("GPU Render");
-    this.activeProgram = -1;
     this.square = new Square();
     this.square.setHasTexture(true);
     this.currentShader = 0;
@@ -81,7 +79,7 @@ public class GPURenderDemo extends DemoApp {
     super.onResized(width, height);
     square.setIdentity();
     square.scale(new M3d(width / (float) height, 1, 1));
-    if (activeProgram != -1) {
+    if (getProgram() != -1) {
       updateUniformVec2("iResolution", (float) width, (float) height);
     }
   }
@@ -117,10 +115,9 @@ public class GPURenderDemo extends DemoApp {
       String root = getRoot();
       int vsName = loadShader(GL20.GL_VERTEX_SHADER, root + "include/basic.vsh");
       int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, root + fragmentShaderFilename);
+      int program = compileProgram(vsName, fsName);
 
-      int prog = compileProgram(vsName, fsName);
-      useProgram(prog);
-      activeProgram = prog;
+      useProgram(program);
       updateUniformVec2("iResolution", (float) getWidth(), (float) getHeight());
       System.out.println("Succesfully loaded '" + fragmentShaderFilename + "'");
       lastLoadedTimestamp = getCurrentShaderTimestamp();

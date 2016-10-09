@@ -43,6 +43,9 @@ public class GLWindowedApp extends GLWindowedCanvas {
     if (window == 0) {
       throw new RuntimeException("Failed to create window");
     }
+    GLFW.glfwSetWindowSizeCallback(window, (window, width, height) -> { 
+      onResized(width, height);
+    });
     GLFW.glfwMakeContextCurrent(window);
     GLFW.glfwSwapInterval(1);
     GLFW.glfwShowWindow(window);
