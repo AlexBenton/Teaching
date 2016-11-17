@@ -1,12 +1,13 @@
 package com.bentonian.framework.ui;
 
+import static com.bentonian.framework.material.Colors.BLACK;
+
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.texture.TexCoord;
 
 public class Vertex extends M3d {
 
   private static final M3d NONE = new M3d(0, 0, 0);
-  private static final M3d BLACK = new M3d(0, 0, 0);
 
   private M3d normal = NONE;
   private M3d color = BLACK;

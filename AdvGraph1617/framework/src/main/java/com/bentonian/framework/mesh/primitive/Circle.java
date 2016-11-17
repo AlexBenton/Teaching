@@ -2,6 +2,7 @@ package com.bentonian.framework.mesh.primitive;
 
 import static com.bentonian.framework.math.MathConstants.X_AXIS;
 
+import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.material.Material;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.MathConstants;
@@ -22,8 +23,8 @@ public class Circle extends MeshPrimitiveWithTexture implements IsRayTraceable {
   private final Material white;
 
   public Circle() {
-    this.black = new Material().setColor(new M3d(0, 0, 0));
-    this.white = new Material().setColor(new M3d(1, 1, 1));
+    this.black = new Material().setColor(Colors.BLACK);
+    this.white = new Material().setColor(Colors.WHITE);
     setTexture(BufferedImageTexture.CHECKERBOARD);
   }
 

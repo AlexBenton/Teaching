@@ -136,11 +136,12 @@ public class ShaderUtil {
     int i = 0;
 
     for (String line : lines) {
-      if (!line.trim().startsWith("#include \"")) {
-        trackedLines.add(new TrackedFileLine(line, resourceName, i++));
+      if (line.trim().startsWith("#include \"")) {
+        String path = root + line.trim().replace("#include ", "").replace("\"", "");
+        trackedLines.addAll(readGlslWithInclude(reader, path));
+        i--;
       } else {
-        trackedLines.addAll(readGlslWithInclude(reader, 
-            root + line.trim().replace("#include ", "").replace("\"", "")));
+        trackedLines.add(new TrackedFileLine(line, resourceName, i++));
       }
     }
     return trackedLines;

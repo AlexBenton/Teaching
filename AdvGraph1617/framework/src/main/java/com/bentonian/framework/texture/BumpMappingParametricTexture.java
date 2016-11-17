@@ -1,5 +1,7 @@
 package com.bentonian.framework.texture;
 
+import static com.bentonian.framework.material.Colors.RED;
+import static com.bentonian.framework.material.Colors.WHITE;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.acos;

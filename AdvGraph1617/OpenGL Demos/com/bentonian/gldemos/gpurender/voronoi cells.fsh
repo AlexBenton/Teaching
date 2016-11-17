@@ -4,6 +4,7 @@ const int renderDepth = 400;
 const vec3 lightPos = vec3(0, 10, 10);
 
 #include "include/common.fsh"
+#include "include/signed distance functions.fsh"
 #include "include/raymarching.fsh"
 
 vec3 forces[4] = vec3[](
@@ -57,17 +58,17 @@ float f(vec3 pt) {
   return min(a, min(b, c));
 }
 
-Material scene(vec3 pt) {
+SdfMaterial scene(vec3 pt) {
   float a = fVoronoi(pt);
   float b = fGeneratingPoints(pt);
   float c = fPlane(pt);
 
   if (a < b && a < c) {
-    return Material(a, GRADIENT(pt, fVoronoi), white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01));
+    return SdfMaterial(a, GRADIENT(pt, fVoronoi), Material(white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01)));
   } else if (b < c) {
-    return Material(a, GRADIENT(pt, fGeneratingPoints), white, vec4(1, 0, 0, 1));
+    return SdfMaterial(a, GRADIENT(pt, fGeneratingPoints), Material(white, vec4(1, 0, 0, 1)));
   } else {
-    return Material(b, GRADIENT(pt, fPlane), getDistanceColor(pt, fVoronoi(pt)), vec4(1, 0, 0, 1));
+    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fVoronoi(pt)), vec4(1, 0, 0, 1)));
   }
 }
 

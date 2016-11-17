@@ -1,18 +1,18 @@
 package com.bentonian.framework.mesh.primitive;
 
+import static com.bentonian.framework.material.Colors.BLACK;
+import static com.bentonian.framework.material.Colors.RED;
+
 import com.bentonian.framework.math.M3d;
+import com.bentonian.framework.mesh.Mesh;
 import com.bentonian.framework.mesh.MeshEdge;
 import com.bentonian.framework.mesh.MeshFace;
-import com.bentonian.framework.mesh.Mesh;
 import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
 import com.bentonian.framework.ui.GLVertexData.Mode;
 
 public class MeshPrimitiveFeatureAccelerator {
-  
-  private static final M3d BLACK = new M3d(0, 0, 0);
-  private static final M3d RED = new M3d(1, 0, 0);
   
   private final Mesh mesh;
   private final GLVertexData vao;

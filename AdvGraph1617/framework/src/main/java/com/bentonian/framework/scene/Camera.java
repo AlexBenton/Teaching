@@ -8,8 +8,6 @@ import com.bentonian.framework.math.M4x4;
 
 /**
  * Pairing of M4x4s representing the cameraToWorld and worldToCamera transforms.
- *
- * @author Alex Benton
  */
 public class Camera {
 

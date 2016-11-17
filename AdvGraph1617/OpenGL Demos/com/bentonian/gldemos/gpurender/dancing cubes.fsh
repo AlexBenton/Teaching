@@ -1,6 +1,7 @@
 #version 330
 
 #include "include/common.fsh"
+#include "include/signed distance functions.fsh"
 
 uniform bool iShowRenderDepth;
 
@@ -58,7 +59,7 @@ float getShadow(vec3 pt) {
 }
 
 vec3 shade(vec3 pt, vec3 rayorig) {
-  vec3 color = (abs(pt.y + 1) < 0.001) ? getDistanceColor(pt, getSdf(pt)) : white;
+  vec3 color = (abs(pt.y + 1) < 0.001) ? getDistanceColor(getSdf(pt)) : white;
   vec3 normal = normalize(GRADIENT(pt, getSdfWithPlane));
   return color * illuminate(pt, normal, rayorig, lightPos) * (0.25 + getShadow(pt));
 }

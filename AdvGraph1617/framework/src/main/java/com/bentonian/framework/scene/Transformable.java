@@ -70,6 +70,7 @@ public class Transformable {
   public Transformable scale(double d) {
     return apply(M4x4.scaleMatrix(d));
   }
+
   private void forget() {
     inverse = null;
   }

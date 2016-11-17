@@ -2,6 +2,7 @@
 
 #include "include/common.fsh"
 #include "include/noise3D.fsh"
+#include "include/signed distance functions.fsh"
 
 uniform bool iShowRenderDepth;
 

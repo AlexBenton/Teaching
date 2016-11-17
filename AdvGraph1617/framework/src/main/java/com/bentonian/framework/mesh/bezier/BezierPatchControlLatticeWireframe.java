@@ -1,13 +1,11 @@
 package com.bentonian.framework.mesh.bezier;
 
-import com.bentonian.framework.math.M3d;
+import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.mesh.primitive.CompiledPrimitive;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData.Mode;
 
 public class BezierPatchControlLatticeWireframe extends CompiledPrimitive {
-
-  private static final M3d WHITE = new M3d(1, 1, 1);
   
   private final BezierPatch patch;
 
@@ -19,7 +17,7 @@ public class BezierPatchControlLatticeWireframe extends CompiledPrimitive {
   @Override
   protected void renderLocal(GLCanvas glCanvas) {
     if (!isCompiled()) {
-      color(WHITE);
+      color(Colors.WHITE);
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
           if (i < 3) {

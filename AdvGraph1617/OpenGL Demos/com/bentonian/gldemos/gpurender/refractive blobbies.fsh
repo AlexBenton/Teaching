@@ -5,6 +5,7 @@ const vec3 lightPos = vec3(0, 10, 10);
 
 #include "include/common.fsh"
 #include "include/metaballs.fsh"
+#include "include/signed distance functions.fsh"
 #include "include/raymarching.fsh"
 
 vec4 forces[3] = vec4[](
@@ -27,14 +28,14 @@ float f(vec3 pt) {
   return min(a, b);
 }
 
-Material scene(vec3 pt) {
+SdfMaterial scene(vec3 pt) {
   float a = fSurface(pt);
   float b = fPlane(pt);
 
   if (a < b) {
-    return Material(a, GRADIENT(pt, fSurface), white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01));
+    return SdfMaterial(a, GRADIENT(pt, fSurface), Material(white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01)));
   } else {
-    return Material(b, GRADIENT(pt, fPlane), getDistanceColor(pt, fSurface(pt)), vec4(1, 0, 0, 1));
+    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fSurface(pt)), vec4(1, 0, 0, 1)));
   }
 }
 

@@ -1,5 +1,11 @@
 package com.bentonian.framework.ui;
 
+import java.awt.Point;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.lwjgl.glfw.GLFW;
+
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.M4x4;
 import com.bentonian.framework.math.Ray;
@@ -16,14 +22,19 @@ import com.google.common.base.Preconditions;
  */
 public class GLWindowedCanvas extends GLCanvas implements Runnable {
 
+  protected String title;
+
   protected int left = 200;
   protected int top = 200;
   protected int width = 800;
   protected int height = 600;
-  protected String title = "LWJGL Demo";
+
   protected boolean exitRequested = false;
   protected boolean isControlDown = false;
   protected boolean isLeftMouseDown = false;
+  protected Set<Integer> keysHeldDown = new HashSet<>();
+  protected Point lastCapturedMousePosition;
+  protected boolean mouseDownCaptured;
 
   private PrimitiveCollection mouseHandlers = new PrimitiveCollection();
   private MouseEventHandler currentMouseCaptureHandler;
@@ -46,9 +57,6 @@ public class GLWindowedCanvas extends GLCanvas implements Runnable {
   protected void initGl() {
     super.initGl();
     onResized(width, height);
-  }
-
-  public void shutdownGl() {
   }
 
   public void mainLoop() {
@@ -161,21 +169,31 @@ public class GLWindowedCanvas extends GLCanvas implements Runnable {
   }
 
   protected void onKeyDown(int key) {
+    keysHeldDown.add(key);
+    if (key == GLFW.GLFW_KEY_ESCAPE) {
+      exitRequested = true;
+    }
   }
 
   protected void onKeyUp(int key) {
+    keysHeldDown.remove(key);
   }
 
   protected void onMouseDown(int x, int y) {
+    lastCapturedMousePosition = new Point(x, y);
+    mouseDownCaptured = true;
   }
 
   protected void onMouseUp(int x, int y) {
-  }
-
-  protected void onMouseMove(int x, int y) {
+    mouseDownCaptured = false;
   }
 
   protected void onMouseDrag(int x, int y) {
+    lastCapturedMousePosition = new Point(x, y);
+  }
+
+  protected void onMouseMove(int x, int y) {
+    lastCapturedMousePosition = new Point(x, y);
   }
 
   protected void onMouseWheel(int delta) {

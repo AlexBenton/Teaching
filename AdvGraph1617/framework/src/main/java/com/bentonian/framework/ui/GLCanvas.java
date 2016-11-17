@@ -23,7 +23,7 @@ import com.bentonian.framework.scene.Camera;
  */
 public class GLCanvas {
 
-  // Caution!  This 'constant' is lazy-initialized in the first call to initGl().
+  // Caution! This 'constant' is lazy-initialized in the first call to initGl().
   public static int DEFAULT_SHADER_PROGRAM = -1;
 
   protected final Camera camera;
@@ -56,6 +56,9 @@ public class GLCanvas {
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
   }
 
+  public void shutdownGl() {
+  }
+
   public void push(M4x4 T) {
     modelStack.push(T);
     updateUniforms();
@@ -70,6 +73,10 @@ public class GLCanvas {
     return modelStack.peek();
   }
 
+  public M4x4 peekProjection() {
+    return projection.peek();
+  }
+
   public void pushLineOffset() {
     projection.pushReversed(M4x4.translationMatrix(new M3d(0, 0, -0.00001)));
     updateProjectionMatrix();
@@ -79,7 +86,7 @@ public class GLCanvas {
     projection.pop();
     updateProjectionMatrix();
   }
-  
+
   public void pushFrameBuffer(GLFrameBuffer frameBuffer) {
     projection.add(M4x4.perspective(frameBuffer.getAspectRatio()));
     updateProjectionMatrix();
@@ -91,7 +98,7 @@ public class GLCanvas {
     projection.pop();
     updateProjectionMatrix();
   }
-  
+
   /**
    * Initializes and copies an ARGB BufferedImage into an RGBA texture.
    */
@@ -107,28 +114,28 @@ public class GLCanvas {
   public static void updateTexture(int textureName, BufferedImage texture) {
     int width = texture.getWidth();
     int height = texture.getHeight();
-    
+
     // Get the image into a known byte alignment.
-    // Could this be done more efficiently?  Heck yes!
+    // Could this be done more efficiently? Heck yes!
     ByteBuffer buffer = ByteBuffer.allocateDirect(texture.getWidth() * texture.getHeight() * 4);
     for (int x = 0; x < texture.getWidth(); x++) {
       for (int y = 0; y < texture.getHeight(); y++) {
         int argb = texture.getRGB(x, y);
         buffer.put((x + y * texture.getWidth()) * 4 + 0, (byte) ((argb >> 16) & 0xFF));
-        buffer.put((x + y * texture.getWidth()) * 4 + 1, (byte) ((argb >>  8) & 0xFF));
-        buffer.put((x + y * texture.getWidth()) * 4 + 2, (byte) ((argb >>  0) & 0xFF));
+        buffer.put((x + y * texture.getWidth()) * 4 + 1, (byte) ((argb >> 8) & 0xFF));
+        buffer.put((x + y * texture.getWidth()) * 4 + 2, (byte) ((argb >> 0) & 0xFF));
         buffer.put((x + y * texture.getWidth()) * 4 + 3, (byte) ((argb >> 24) & 0xFF));
       }
     }
-    
+
     updateTextureBuffer(textureName, buffer, width, height, GL11.GL_RGBA);
   }
 
-  public static void updateTextureBuffer(
-      int textureId, ByteBuffer buffer, int width, int height, int glFormat) {
+  public static void updateTextureBuffer(int textureId, ByteBuffer buffer, int width, int height,
+      int glFormat) {
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, 
-        width, height, 0, glFormat, GL11.GL_UNSIGNED_BYTE, buffer);
+    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, glFormat,
+        GL11.GL_UNSIGNED_BYTE, buffer);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
   }
@@ -139,7 +146,7 @@ public class GLCanvas {
       GL20.glUseProgram(program);
     }
   }
-  
+
   public void pushProgram(int program) {
     programStack.push(this.program);
     useProgram(program);
@@ -181,7 +188,8 @@ public class GLCanvas {
     updateUniformM4x4("modelToWorld", modelToWorld);
     updateUniformM4x4("modelToCamera", modelToCamera);
     updateUniformM3x3("normalToWorld", modelToWorld.extract3x3().inverted().transposed());
-    updateUniformM3x3("normalToCamera", modelToCamera.times(modelToWorld).extract3x3().inverted().transposed());
+    updateUniformM3x3("normalToCamera", modelToCamera.times(modelToWorld).extract3x3().inverted()
+        .transposed());
     updateUniformM4x4("modelToScreen", projection.peek().times(modelToCamera));
     updateUniformVec3("eyePosition", cameraForModelView.getPosition());
     updateUniformVec3("lightPosition", getLightPosition());
@@ -190,9 +198,10 @@ public class GLCanvas {
   protected Camera getCameraForModelview() {
     return camera;
   }
-  
+
   protected void updateProjectionMatrix() {
-    updateUniformM4x4("modelToScreen", projection.peek().times(camera.getParentToLocal().times(peek())));
+    updateUniformM4x4("modelToScreen",
+        projection.peek().times(camera.getParentToLocal().times(peek())));
   }
 
   protected M3d getLightPosition() {
@@ -244,7 +253,7 @@ public class GLCanvas {
   public void updateUniformBoolean(String uniformName, boolean b) {
     updateUniformInt(uniformName, b ? 1 : 0);
   }
-  
+
   private static int loadDefaultShaderProgram() {
     int vsName = loadShader(GL20.GL_VERTEX_SHADER, GLCanvas.class, "default.vsh");
     int fsName = loadShader(GL20.GL_FRAGMENT_SHADER, GLCanvas.class, "default.fsh");

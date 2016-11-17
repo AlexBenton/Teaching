@@ -9,18 +9,16 @@ import java.util.Queue;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.mesh.implicits.ImplicitSurface;
 import com.bentonian.framework.mesh.implicits.MetaBall;
 import com.bentonian.framework.scene.ControlWidget;
 import com.bentonian.framework.ui.DemoApp;
-import com.bentonian.framework.ui.GLWindowedApp;
+import com.bentonian.framework.ui.GLFWCanvas;
 import com.bentonian.framework.ui.GLWindowedAppSecondaryFrame;
 
 public class BlobbyDemo extends DemoApp {
-
-  private static final M3d RED = new M3d(1,0,0);
-  private static final M3d BLUE = new M3d(0,0,1);
 
   private final FunctionFrame functionFrame;
   private final ImplicitSurface surface;
@@ -45,13 +43,13 @@ public class BlobbyDemo extends DemoApp {
         .setTargetLevel(5)
         .addForce(new Mover(
             6.7841952392351645, 2.7370054894176192, -1.7763568394002505E-15,
-            RED) {
+            Colors.RED) {
           @Override
           public void update(double t) {
             translate(new M3d(4 * Math.cos(t), 0, 0).minus(getPosition()));
           }
         }.getMetaBall())
-        .addForce(new Mover(-4, 0, 0, BLUE).getMetaBall())
+        .addForce(new Mover(-4, 0, 0, Colors.BLUE).getMetaBall())
         .refineCompletely();
     setCameraDistance(15);
   }
@@ -89,11 +87,9 @@ public class BlobbyDemo extends DemoApp {
       break;
     case GLFW.GLFW_KEY_EQUAL:
       surface.setTargetLevel(Math.min(10, surface.getTargetLevel() + 1));
-      surface.dispose();
       break;
     case GLFW.GLFW_KEY_MINUS:
       surface.setTargetLevel(Math.max(1, surface.getTargetLevel() - 1));
-      surface.dispose();
       break;
     default: super.onKeyDown(key);
       break;
@@ -224,7 +220,7 @@ public class BlobbyDemo extends DemoApp {
 
   private class FunctionFrame extends GLWindowedAppSecondaryFrame {
 
-    public FunctionFrame(GLWindowedApp app) {
+    public FunctionFrame(GLFWCanvas app) {
       super(app, "Force function");
     }
 

@@ -1,6 +1,9 @@
 package com.bentonian.gldemos.raytracedtexture;
 
 import static com.bentonian.framework.io.FileUtil.loadImageResource;
+import static com.bentonian.framework.material.Colors.BLACK;
+import static com.bentonian.framework.material.Colors.ORANGE;
+import static com.bentonian.framework.material.Colors.WHITE;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.max;
@@ -68,9 +71,9 @@ public class RayTracedTextureDemo extends DemoApp {
           double d = sdf.sample(tc);
           double t = smoothstep(low, high, d);
           double u = smoothstep(high, high + 0.025, d);
-          M3d outer = edgy ? Texture.ORANGE : Texture.WHITE;
-          return (d <= high || !edgy) ? Texture.BLACK.times(1 - t).plus(outer.times(t))
-              : outer.times(1 - u).plus(Texture.WHITE.times(u));
+          M3d outer = edgy ? ORANGE : WHITE;
+          return (d <= high || !edgy) ? BLACK.times(1 - t).plus(outer.times(t))
+              : outer.times(1 - u).plus(WHITE.times(u));
         } else {
           return super.getColor(target, pt);
         }

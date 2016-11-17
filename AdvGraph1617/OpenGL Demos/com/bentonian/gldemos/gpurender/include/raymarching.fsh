@@ -11,27 +11,19 @@
 //
 //   2. Declare the following two methods:
 //     float f(vec3 pt);
-//     Material scene(vec3 pt);
+//     SdfMaterial scene(vec3 pt);
 // 
 //   3. Call renderScene().  Ex:
 //     fragColor = vec4(renderScene(iRayOrigin, getRayDir(iRayDir, iRayUp, texCoord)), 1.0);
 
 ////////////////////////////////////////////////////////////////////
+// Data types
 
-struct Material {
+struct SdfMaterial {
   float sdf;
   vec3 gradient;
-  vec3 color;
-  vec4 mat;  // .x = base, .y = refract, .z = reflect, .w = refractive index
+  Material mat;
 };
-
-struct TBD {
-  vec3 src;
-  vec3 dir;
-  float weight;
-};
-
-#define REFRACTIVE_INDEX_OF_AIR 1.000277
 
 ////////////////////////////////////////////////////////////////////
 // Forward declarations, must be implemented
@@ -40,7 +32,7 @@ struct TBD {
 float f(vec3 pt);
 
 // Returns all material traits at pt.  (Computed, probably, from f(pt).)
-Material scene(vec3 pt);
+SdfMaterial scene(vec3 pt);
 
 ////////////////////////////////////////////////////////////////////
 
@@ -94,21 +86,21 @@ vec3 renderScene(vec3 rayorig, vec3 raydir) {
     vec4 res = raymarch(src, dir);
     if (res.w < renderDepth) {
       vec3 pt = res.xyz;
-      Material material = scene(pt);
+      SdfMaterial material = scene(pt);
       vec3 normal = normalize(material.gradient);
       float illumination = (0.25 + shadow(pt)) * illuminate(pt, normal, src, lightPos);
       int normalSign = int(sign(dot(normal, dir)));
 
-      cumulativeColor += weight * material.mat.x * illumination * material.color;
-      if (material.mat.y > 0) {
+      cumulativeColor += weight * material.mat.mat.x * illumination * material.mat.color;
+      if (material.mat.mat.y > 0) {
         vec3 refractNormal = normalSign * normal;
         vec3 refractPt = pt + 2 * max(0.0001, abs(material.sdf)) * refractNormal;
         vec3 refractDir = refract(dir, -refractNormal, 
-            (normalSign < 0) ? (REFRACTIVE_INDEX_OF_AIR / material.mat.w) : (material.mat.w / REFRACTIVE_INDEX_OF_AIR));
-        tbd[numTbd++] = TBD(refractPt, refractDir, weight * material.mat.y);
+            (normalSign < 0) ? (REFRACTIVE_INDEX_OF_AIR / material.mat.mat.w) : (material.mat.mat.w / REFRACTIVE_INDEX_OF_AIR));
+        tbd[numTbd++] = TBD(refractPt, refractDir, weight * material.mat.mat.y);
       }
-      if (material.mat.z > 0) {
-        tbd[numTbd++] = TBD(pt + 0.001 * normal, reflect(dir, normal), weight * material.mat.z);
+      if (material.mat.mat.z > 0) {
+        tbd[numTbd++] = TBD(pt + 0.001 * normal, reflect(dir, normal), weight * material.mat.mat.z);
       }
     } else {
       cumulativeColor += weight * background;

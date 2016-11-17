@@ -13,24 +13,23 @@ import org.lwjgl.opengl.GL11;
 /**
  * The specifics of the LWJGL implementation--setup and shutdown, key codes, etc. 
  */
-public class GLWindowedApp extends GLWindowedCanvas {
+public class GLFWCanvas extends GLWindowedCanvas {
 
   private long window;
-  private GLFWErrorCallback errorCallback;
 
-  public GLWindowedApp(String title) {
+  public GLFWCanvas(String title) {
     super(title);
   }
 
   @Override
   protected void initGl() {
     initGLFW();
-    setupInputCapture();
+    initGLFWInput();
     super.initGl();
   }
 
   private void initGLFW() {
-    errorCallback = GLFWErrorCallback.createPrint(System.err);
+    GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
     GLFW.glfwSetErrorCallback(errorCallback);
     if (!GLFW.glfwInit()) {
       throw new IllegalStateException("Failed to initialize GLFW");
@@ -80,7 +79,7 @@ public class GLWindowedApp extends GLWindowedCanvas {
     }
   }
 
-  private void setupInputCapture() {
+  private void initGLFWInput() {
     GLFW.glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
       if (key == GLFW.GLFW_KEY_LEFT_CONTROL || key == GLFW.GLFW_KEY_RIGHT_CONTROL) {
         isControlDown = (action != GLFW.GLFW_RELEASE);
@@ -130,14 +129,6 @@ public class GLWindowedApp extends GLWindowedCanvas {
   @Override
   public boolean isExitRequested() {
     return glfwWindowShouldClose(window) || super.isExitRequested();
-  }
-
-  @Override
-  protected void onKeyDown(int key) {
-    super.onKeyDown(key);
-    if (key == GLFW.GLFW_KEY_ESCAPE) {
-      exitRequested = true;
-    }
   }
 
   @Override

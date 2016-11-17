@@ -1,5 +1,7 @@
 package com.bentonian.gldemos.subdivision;
 
+import static com.bentonian.framework.material.Colors.BLUE;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +22,6 @@ import com.bentonian.framework.ui.DemoApp;
 
 public class SubdivisionDemo extends DemoApp {
   
-  private static final M3d BLUE = new M3d(0, 0, 1);
   private static final int NUM_FUNCTIONS = 3;
 
   private static final String[] FN_NAMES = { "Loop", "Doo-Sabin", "Catmull-Clark" };

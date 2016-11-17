@@ -3,29 +3,29 @@ package com.bentonian.framework.ui;
 import static com.bentonian.framework.math.MathConstants.X_AXIS;
 import static com.bentonian.framework.math.MathConstants.Y_AXIS;
 
-import java.awt.Point;
 import java.io.File;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
 
 import org.lwjgl.glfw.GLFW;
 
 import com.bentonian.framework.math.M3d;
+import com.bentonian.framework.mesh.primitive.PinnedText;
 import com.bentonian.framework.scene.CameraAnimator;
-import com.google.common.collect.Sets;
 
-public class DemoApp extends GLWindowedApp {
+public class DemoApp extends GLFWCanvas {
 
-  protected Point lastCapturedMousePosition;
-  protected boolean mouseDownCaptured;
-  protected Set<Integer> keysHeldDown;
   protected long lastFrameStartMillis;
   protected CameraAnimator cameraAnimator;
+  protected List<Long> frameTimestamps = new LinkedList<>();
+  
+  private boolean showFPS = false;
+  private PinnedText FPS = new PinnedText();
 
   protected DemoApp(String title) {
     super(title);
-    this.keysHeldDown = Sets.newHashSet();
     setCameraDistance(10);
   }
 
@@ -46,38 +46,6 @@ public class DemoApp extends GLWindowedApp {
 
   public void animateCameraToPosition(M3d dest, M3d up) {
     cameraAnimator = new CameraAnimator(getCamera(), dest, dest.normalized().times(-1), up, 1000);
-  }
-
-  @Override
-  public void onKeyDown(int key) {
-    double d = getCameraDistance();
-    int sign = isControlDown() ? -1 : 1;
-
-    keysHeldDown.add(key);
-    switch (key) {
-    default:
-      super.onKeyDown(key);
-      break;
-    case GLFW.GLFW_KEY_1:
-      animateCameraToPosition(new M3d(0, 0, sign * d));
-      break;
-    case GLFW.GLFW_KEY_2:
-      animateCameraToPosition(new M3d(0, sign * d, 0), new M3d(0, 0, -sign));
-      break;
-    case GLFW.GLFW_KEY_3:
-      animateCameraToPosition(new M3d(sign * d, 0, 0));
-      break;
-    case GLFW.GLFW_KEY_P:
-      if (isControlDown()) {
-        captureScreenshot(getScreenshotName());
-      }
-      break;
-    }
-  }
-
-  @Override
-  public void onKeyUp(int key) {
-    keysHeldDown.remove(key);
   }
 
   @Override
@@ -120,21 +88,54 @@ public class DemoApp extends GLWindowedApp {
     }
 
     lastFrameStartMillis = now;
+    frameTimestamps.add(now);
+    while (frameTimestamps.get(0) < now - 5000) {
+      frameTimestamps.remove(0);
+    }
 
     super.preDraw();
   }
 
   @Override
-  protected void onMouseDown(int x, int y) {
-    super.onMouseDown(x, y);
-    lastCapturedMousePosition = new Point(x, y);
-    mouseDownCaptured = true;
+  protected void postDraw() {
+    if (showFPS && frameTimestamps.size() > 1) {
+      float seconds = 
+          (float) (frameTimestamps.get(frameTimestamps.size() - 1) - frameTimestamps.get(0)) / 1000;
+      float fps = ((float) frameTimestamps.size()) / seconds;
+      FPS.setText("FPS: " + String.format("%.2f", fps));
+      FPS.render(this);
+    }
+
+    super.postDraw();
   }
 
   @Override
-  protected void onMouseUp(int x, int y) {
-    super.onMouseUp(x, y);
-    mouseDownCaptured = false;
+  public void onKeyDown(int key) {
+    double d = getCameraDistance();
+    int sign = isControlDown() ? -1 : 1;
+
+    switch (key) {
+    default:
+      super.onKeyDown(key);
+      break;
+    case GLFW.GLFW_KEY_1:
+      animateCameraToPosition(new M3d(0, 0, sign * d));
+      break;
+    case GLFW.GLFW_KEY_2:
+      animateCameraToPosition(new M3d(0, sign * d, 0), new M3d(0, 0, -sign));
+      break;
+    case GLFW.GLFW_KEY_3:
+      animateCameraToPosition(new M3d(sign * d, 0, 0));
+      break;
+    case GLFW.GLFW_KEY_P:
+      if (isControlDown()) {
+        captureScreenshot(getScreenshotName());
+      }
+      break;
+    case GLFW.GLFW_KEY_F:
+      showFPS = !showFPS;
+      break;
+    }
   }
 
   @Override
@@ -150,7 +151,7 @@ public class DemoApp extends GLWindowedApp {
       getCamera().translate(getCamera().getDirection().times(-distanceFromOrigin));
     }
 
-    lastCapturedMousePosition = new Point(x, y);
+    super.onMouseDrag(x, y);
   }
 
   @Override

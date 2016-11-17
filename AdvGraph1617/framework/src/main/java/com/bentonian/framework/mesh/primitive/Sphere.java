@@ -28,29 +28,19 @@ public class Sphere extends MeshPrimitiveWithTexture implements IsRayTraceable {
     MeshVertex[][] vertices = new MeshVertex[du][dv];
     for (int u = 0; u < du; u++) {
       for (int v = 0; v < dv; v++) {
-        double s = u * PI * 2 / du;
-        double t = v * PI / dv;
+        double s = u * PI * 2 / (du - 1);
+        double t = v * PI / (dv - 1);
         vertices[u][v] = new MeshVertex(cos(s) * sin(t), -cos(t), sin(s) * sin(t));
       }
     }
-    MeshVertex bottom = new MeshVertex(0, -1, 0);
-    MeshVertex top = new MeshVertex(0, 1, 0);
-    for (int u = 0; u < du; u++) {
-      getMesh().add(new MeshFace(
-          bottom,
-          vertices[u][1],
-          vertices[(u + 1) % du][1]));
-      for (int v = 1; v < dv - 1; v++) {
+    for (int u = 0; u < du - 1; u++) {
+      for (int v = 0; v < dv - 1; v++) {
         getMesh().add(new MeshFace(
             vertices[u][v],
             vertices[u][(v + 1) % dv],
             vertices[(u + 1) % du][(v + 1) % dv],
             vertices[(u + 1) % du][v]));
       }
-      getMesh().add(new MeshFace(
-          vertices[u][dv - 1],
-          top,
-          vertices[(u + 1) % du][dv - 1]));
     }
     getMesh().computeAllNormals();
     setRenderStyle(RenderStyle.NORMALS_BY_VERTEX);
@@ -61,7 +51,7 @@ public class Sphere extends MeshPrimitiveWithTexture implements IsRayTraceable {
     double OdotD = ray.origin.dot(ray.direction);
     double DdotD = ray.direction.dot(ray.direction);
     double OdotO = ray.origin.dot(ray.origin);
-    double base = OdotD*OdotD - DdotD*(OdotO-1);
+    double base = OdotD * OdotD - DdotD * (OdotO - 1);
 
     if (base >= 0) {
       double bm4ac = Math.sqrt(base);

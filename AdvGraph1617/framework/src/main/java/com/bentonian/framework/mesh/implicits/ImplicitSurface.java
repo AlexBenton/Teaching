@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.material.HasColor;
 import com.bentonian.framework.material.Material;
 import com.bentonian.framework.material.MaterialPrimitive;
@@ -26,7 +27,6 @@ import com.google.common.collect.Sets;
 
 public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable {
 
-  private static final M3d WHITE = new M3d(1, 1, 1);
   private static final int DEFAULT_TARGET_LEVEL = 3;
   private static final double DELTA = 0.0001;
   private static final M3d DX = new M3d(DELTA, 0, 0);
@@ -41,7 +41,7 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
   private final WeakHashMap<M3d, Sample> samples;
 
   private double cutoff = 0.5;
-  private int targetLevel = 4;
+  private int targetLevel;
   private M3d min;
   private double scale;
   private int fx, fy, fz;
@@ -141,8 +141,11 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
   }
 
   public ImplicitSurface setTargetLevel(int targetLevel) {
-    this.targetLevel = targetLevel;
-    resetInProgressAndFinished();
+    if (this.targetLevel != targetLevel) {
+      this.targetLevel = targetLevel;
+      resetInProgressAndFinished();
+      dispose();
+    }
     return this;
   }
 
@@ -205,7 +208,7 @@ public class ImplicitSurface extends MaterialPrimitive implements IsRayTraceable
           summedColor = summedColor.plus(((HasColor) f).getColor().times(weight));
         }
       }
-      color = (summedWeight > 0) ? summedColor.times(1 / summedWeight) : WHITE;
+      color = (summedWeight > 0) ? summedColor.times(1 / summedWeight) : Colors.WHITE;
       sample = new Sample(v, sum, color);
       if (updateCache) {
         samples.put(v, sample);

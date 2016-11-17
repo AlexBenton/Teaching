@@ -1,11 +1,11 @@
 package com.bentonian.framework.math;
 
+import static com.bentonian.framework.math.MathConstants.EPSILON;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class M3d {
   
-  static final double EPSILON = 0.0000001;
   double vec[] = new double[3];  
   
   public M3d() {

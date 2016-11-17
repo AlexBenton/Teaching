@@ -1,6 +1,7 @@
 #version 330
 
 #include "include/common.fsh"
+#include "include/signed distance functions.fsh"
 
 const int renderDepth = 400;
 const vec3 lightPos = vec3(0, 10, 10);
@@ -35,7 +36,7 @@ vec4 raymarch(vec3 rayorig, vec3 raydir) {
 
 vec3 shade(vec3 pt, vec3 rayorig) {
   vec3 normal = normalize(GRADIENT(pt, getSdfWithPlane));
-  vec3 color = (abs(pt.z - sin(iGlobalTime)) < 0.01) ? getDistanceColor(pt, f(pt))  : white;
+  vec3 color = (abs(pt.z - sin(iGlobalTime)) < 0.01) ? getDistanceColor(f(pt)) : white;
   return color * (0.25 + illuminate(pt, normal, rayorig, lightPos));
 }
 

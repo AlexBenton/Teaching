@@ -1,5 +1,9 @@
 package com.bentonian.framework.scene;
 
+import static com.bentonian.framework.material.Colors.BLUE;
+import static com.bentonian.framework.material.Colors.GRAY;
+import static com.bentonian.framework.material.Colors.WHITE;
+
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.mesh.primitive.Sphere;
@@ -7,10 +11,6 @@ import com.bentonian.framework.raytrace.engine.RayTracerEngine;
 import com.bentonian.framework.ui.MouseEventHandler;
 
 public class ControlWidget extends Sphere implements MouseEventHandler {
-
-  private static final M3d BLUE = new M3d(0, 0, 0.8);
-  private static final M3d WHITE = new M3d(1, 1, 1);
-  private static final M3d GRAY = new M3d(0.6, 0.6, 0.6);
 
   protected boolean isHighlighted = false;
   protected boolean isSelected = false;

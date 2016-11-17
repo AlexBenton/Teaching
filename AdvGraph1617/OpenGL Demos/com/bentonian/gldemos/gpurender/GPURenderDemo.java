@@ -10,11 +10,20 @@ import com.bentonian.framework.io.FileUtil;
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.mesh.primitive.Square;
 import com.bentonian.framework.scene.Camera;
+import com.bentonian.framework.texture.BufferedImageTexture;
 import com.bentonian.framework.ui.DemoApp;
 
 public class GPURenderDemo extends DemoApp {
 
-  private static final String[] SHADERS = { "dancing cubes.fsh", "voronoi cells.fsh", "refractive blobbies.fsh", "reflection and refraction.fsh", "primitives.fsh", "noise.fsh" };
+  private static final String[] SHADERS = { 
+    "dancing cubes.fsh", 
+    "voronoi cells.fsh",
+    "refractive blobbies.fsh", 
+    "reflection and refraction.fsh", 
+    "primitives.fsh", 
+    "noise.fsh",
+    "raytracing.fsh", 
+  };
 
   private final Square square;
 
@@ -40,6 +49,9 @@ public class GPURenderDemo extends DemoApp {
     this.frozenCamera = new Camera(getCamera());
     animateCameraToPosition(new M3d(20, 10, 20));
 
+    // This isn't actually textured onto the quad, but it's a handy way to pass the image
+    this.square.setTexture(new BufferedImageTexture(GPURenderDemo.class, "background.jpg"));
+    
     new Reloader().start();
   }
 

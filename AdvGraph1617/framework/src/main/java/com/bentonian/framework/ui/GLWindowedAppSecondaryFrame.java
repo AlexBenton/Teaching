@@ -4,9 +4,9 @@ import com.bentonian.framework.io.SimpleFrame;
 
 public class GLWindowedAppSecondaryFrame extends SimpleFrame {
 
-  private final GLWindowedApp app;
+  private final GLFWCanvas app;
 
-  public GLWindowedAppSecondaryFrame(GLWindowedApp app, String title) {
+  public GLWindowedAppSecondaryFrame(GLFWCanvas app, String title) {
     super(title);
     this.app = app;
   }

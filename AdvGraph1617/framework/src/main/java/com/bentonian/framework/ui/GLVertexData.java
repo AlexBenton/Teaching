@@ -20,31 +20,32 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+/**
+ * This class emulates the original OpenGL 1.1-style immediate mode graphics,
+ * simplifying cache management and texture attachment to 'compile' instances of
+ * geometry into vertex array objects.
+ */
 public class GLVertexData {
 
   public static enum Mode {
-    NONE,
-    TRIANGLES,
-    QUADS,
-    LINE_SEGMENTS,
-    LINE_TRIANGLES,
-    LINE_QUADS,
+    NONE, TRIANGLES, QUADS, LINE_SEGMENTS, LINE_TRIANGLES, LINE_QUADS,
   }
 
   private final Mode glMode;
 
   private int vPosition, vNormal, vColor, vTexCoord, enableTexturing, texture;
   private int vertexArrayId;
-  private int positionVertexBufferId, normalVertexBufferId, colorVertexBufferId, texCoordsVertexBufferId;
+  private int positionVertexBufferId, normalVertexBufferId, colorVertexBufferId,
+      texCoordsVertexBufferId;
   private boolean isCompiled;
-  
+
   private List<Vertex> vertices;
   private M3d normal;
   private M3d color;
   private boolean hasTexture;
   private TexCoord textureCoordinates;
 
-  /////////////////////////////////////////////////////////////////////////////
+  // ///////////////////////////////////////////////////////////////////////////
 
   public GLVertexData(Mode glMode) {
     this.glMode = glMode;
@@ -75,7 +76,7 @@ public class GLVertexData {
     return new GLVertexData(GLVertexData.Mode.LINE_QUADS);
   }
 
-  /////////////////////////////////////////////////////////////////////////////
+  // ///////////////////////////////////////////////////////////////////////////
 
   public boolean isCompiled() {
     return isCompiled;
@@ -85,6 +86,11 @@ public class GLVertexData {
     return hasTexture;
   }
 
+  /**
+   * This implementation is NOT OPTIMAL: quads are converted into pairs of
+   * triangles instead of triangle strips, and triangle and line strips are
+   * unsupported.
+   */
   public GLVertexData vertex(M3d point) {
     Preconditions.checkState(!isCompiled);
     Vertex v = new Vertex(point);
@@ -93,29 +99,29 @@ public class GLVertexData {
     v.setTextureCoords(textureCoordinates);
     vertices.add(v);
     switch (glMode) {
-      case QUADS:
-        if (vertices.size() % 6 == 4) {
-          vertices.add(new Vertex(vertices.get(vertices.size() - 4)));
-          vertices.add(new Vertex(vertices.get(vertices.size() - 3)));
-        }
-        break;
-      case LINE_TRIANGLES:
-        if (vertices.size() % 6 == 2) {
-          vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
-        } else if (vertices.size() % 6 == 4) {
-          vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
-          vertices.add(new Vertex(vertices.get(vertices.size() - 5)));
-        }
-        break;
-      case LINE_QUADS:
-        if ((vertices.size() % 8 == 2) || (vertices.size() % 8 == 4)) {
-          vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
-        } else if (vertices.size() % 8 == 6) {
-          vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
-          vertices.add(new Vertex(vertices.get(vertices.size() - 7)));
-        }
-      default:
-        break;
+    case QUADS:
+      if (vertices.size() % 6 == 4) {
+        vertices.add(new Vertex(vertices.get(vertices.size() - 4)));
+        vertices.add(new Vertex(vertices.get(vertices.size() - 3)));
+      }
+      break;
+    case LINE_TRIANGLES:
+      if (vertices.size() % 6 == 2) {
+        vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
+      } else if (vertices.size() % 6 == 4) {
+        vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
+        vertices.add(new Vertex(vertices.get(vertices.size() - 5)));
+      }
+      break;
+    case LINE_QUADS:
+      if ((vertices.size() % 8 == 2) || (vertices.size() % 8 == 4)) {
+        vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
+      } else if (vertices.size() % 8 == 6) {
+        vertices.add(new Vertex(vertices.get(vertices.size() - 1)));
+        vertices.add(new Vertex(vertices.get(vertices.size() - 7)));
+      }
+    default:
+      break;
     }
     return this;
   }
@@ -185,7 +191,7 @@ public class GLVertexData {
     }
   }
 
-  /////////////////////////////////////////////////////////////////////////////
+  // ///////////////////////////////////////////////////////////////////////////
 
   private void compile(GLCanvas glCanvas) {
     int program = glCanvas.getProgram();

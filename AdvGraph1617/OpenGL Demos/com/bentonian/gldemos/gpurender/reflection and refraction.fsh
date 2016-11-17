@@ -5,6 +5,7 @@ const vec3 lightPos = vec3(0, 10, 10);
 
 #include "include/common.fsh"
 #include "include/noise3D.fsh"
+#include "include/signed distance functions.fsh"
 #include "include/raymarching.fsh"
 
 float fGlass(vec3 pt) {
@@ -31,20 +32,21 @@ float f(vec3 pt) {
   return min(s, min(c, t));
 }
 
-Material scene(vec3 pt) {
+SdfMaterial scene(vec3 pt) {
   float s = fGlass(pt);
   float c = fFloor(pt);
   float t = fMirror(pt);
 
   if (s < min(c, t)) {
-    return Material(s, GRADIENT(pt, fGlass), blue, vec4(0.5, 0.5, 0, 1.330));
+    return SdfMaterial(s, GRADIENT(pt, fGlass), Material(blue, vec4(0.5, 0.5, 0, 1.330)));
   } else if (c < min(s, t)) {
-    return Material(c, 
+    return SdfMaterial(c, 
         GRADIENT(pt, fFloor),
-        ((int(floor(pt.x) + floor(pt.y) + floor(pt.z)) & 0x01) == 0) ? black : white,
-        vec4(1, 0, 0, 1));
+        Material(
+            ((int(floor(pt.x) + floor(pt.y) + floor(pt.z)) & 0x01) == 0) ? black : white,
+            vec4(1, 0, 0, 1)));
   } else {
-    return Material(t, GRADIENT(pt, fMirror), white, vec4(0.25, 0, 0.75, 1));
+    return SdfMaterial(t, GRADIENT(pt, fMirror), Material(white, vec4(0.25, 0, 0.75, 1)));
   }
 }
 
