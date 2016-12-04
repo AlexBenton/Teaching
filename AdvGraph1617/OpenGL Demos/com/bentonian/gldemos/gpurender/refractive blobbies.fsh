@@ -33,9 +33,9 @@ SdfMaterial scene(vec3 pt) {
   float b = fPlane(pt);
 
   if (a < b) {
-    return SdfMaterial(a, GRADIENT(pt, fSurface), Material(white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01)));
+    return SdfMaterial(a, GRADIENT(pt, fSurface), Material(white, 0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01));
   } else {
-    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fSurface(pt)), vec4(1, 0, 0, 1)));
+    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fSurface(pt)), 1, 0, 0, 1));
   }
 }
 

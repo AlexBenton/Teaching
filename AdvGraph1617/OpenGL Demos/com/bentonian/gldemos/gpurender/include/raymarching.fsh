@@ -91,16 +91,16 @@ vec3 renderScene(vec3 rayorig, vec3 raydir) {
       float illumination = (0.25 + shadow(pt)) * illuminate(pt, normal, src, lightPos);
       int normalSign = int(sign(dot(normal, dir)));
 
-      cumulativeColor += weight * material.mat.mat.x * illumination * material.mat.color;
-      if (material.mat.mat.y > 0) {
+      cumulativeColor += weight * material.mat.base * illumination * material.mat.color;
+      if (material.mat.refractive > 0) {
         vec3 refractNormal = normalSign * normal;
         vec3 refractPt = pt + 2 * max(0.0001, abs(material.sdf)) * refractNormal;
         vec3 refractDir = refract(dir, -refractNormal, 
-            (normalSign < 0) ? (REFRACTIVE_INDEX_OF_AIR / material.mat.mat.w) : (material.mat.mat.w / REFRACTIVE_INDEX_OF_AIR));
-        tbd[numTbd++] = TBD(refractPt, refractDir, weight * material.mat.mat.y);
+            (normalSign < 0) ? (REFRACTIVE_INDEX_OF_AIR / material.mat.refractiveIndex) : (material.mat.refractiveIndex / REFRACTIVE_INDEX_OF_AIR));
+        tbd[numTbd++] = TBD(refractPt, refractDir, weight * material.mat.refractive);
       }
-      if (material.mat.mat.z > 0) {
-        tbd[numTbd++] = TBD(pt + 0.001 * normal, reflect(dir, normal), weight * material.mat.mat.z);
+      if (material.mat.reflective > 0) {
+        tbd[numTbd++] = TBD(pt + 0.001 * normal, reflect(dir, normal), weight * material.mat.reflective);
       }
     } else {
       cumulativeColor += weight * background;

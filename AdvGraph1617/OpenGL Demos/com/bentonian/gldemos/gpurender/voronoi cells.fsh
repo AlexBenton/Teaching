@@ -64,11 +64,11 @@ SdfMaterial scene(vec3 pt) {
   float c = fPlane(pt);
 
   if (a < b && a < c) {
-    return SdfMaterial(a, GRADIENT(pt, fVoronoi), Material(white, vec4(0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01)));
+    return SdfMaterial(a, GRADIENT(pt, fVoronoi), Material(white, 0.5, 0.5, 0, REFRACTIVE_INDEX_OF_AIR + 0.01));
   } else if (b < c) {
-    return SdfMaterial(a, GRADIENT(pt, fGeneratingPoints), Material(white, vec4(1, 0, 0, 1)));
+    return SdfMaterial(a, GRADIENT(pt, fGeneratingPoints), Material(white, 1, 0, 0, 1));
   } else {
-    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fVoronoi(pt)), vec4(1, 0, 0, 1)));
+    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fVoronoi(pt)), 1, 0, 0, 1));
   }
 }
 

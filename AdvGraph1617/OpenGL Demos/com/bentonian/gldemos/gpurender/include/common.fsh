@@ -22,19 +22,15 @@ const vec3 red = vec3(0.8, 0.2, 0.2);
 const vec3 green = vec3(0.2, 0.8, 0.2);
 const vec3 blue = vec3(0.2, 0.2, 0.8);
 
-vec3 getRayDir(vec3 camDir, vec3 camUp, vec2 texCoord) {
-  vec3 xAxis = normalize(cross(camDir, camUp));
-  vec2 p = 2.0 * texCoord - 1.0;
-  p.x *= iResolution.x / iResolution.y;
-  return normalize(p.x * xAxis + p.y * camUp + 5 * camDir);
-}
-
 ////////////////////////////////////////////////////////////////////
 // Common data structures for raymarching and raytracing
 
 struct Material {
   vec3 color;
-  vec4 mat;  // .x = base, .y = refract, .z = reflect, .w = refractive index
+  float base;
+  float refractive;
+  float reflective;
+  float refractiveIndex;
 };
 
 struct TBD {
@@ -42,6 +38,16 @@ struct TBD {
   vec3 dir;
   float weight;
 };
+
+////////////////////////////////////////////////////////////////////
+// Scene
+
+vec3 getRayDir(vec3 camDir, vec3 camUp, vec2 texCoord) {
+  vec3 xAxis = normalize(cross(camDir, camUp));
+  vec2 p = 2.0 * texCoord - 1.0;
+  p.x *= iResolution.x / iResolution.y;
+  return normalize(p.x * xAxis + p.y * camUp + 5 * camDir);
+}
 
 ////////////////////////////////////////////////////////////////////
 // Lighting
