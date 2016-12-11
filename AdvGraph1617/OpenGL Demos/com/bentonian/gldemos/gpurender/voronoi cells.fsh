@@ -68,7 +68,7 @@ SdfMaterial scene(vec3 pt) {
   } else if (b < c) {
     return SdfMaterial(a, GRADIENT(pt, fGeneratingPoints), Material(white, 1, 0, 0, 1));
   } else {
-    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(fVoronoi(pt)), 1, 0, 0, 1));
+    return SdfMaterial(b, GRADIENT(pt, fPlane), Material(getDistanceColor(a), 1, 0, 0, 1));
   }
 }
 

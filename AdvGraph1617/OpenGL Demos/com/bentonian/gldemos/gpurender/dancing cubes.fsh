@@ -71,7 +71,7 @@ vec3 scene(vec3 rayorig, vec3 raydir) {
       ? vec3(float(res.w) / 50.0)
       : (res.w < renderDepth)
           ? shade(res.xyz, rayorig)
-          : background;
+          : getBackground(raydir);
 }
 
 void main() {

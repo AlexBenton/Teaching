@@ -16,7 +16,7 @@ float f(vec3 pt) {
 }
 
 float getSdfWithPlane(vec3 pt) {
-  return min(f(pt), sdPlane(pt - vec3(0, 0, sin(iGlobalTime)), vec4(0,0,1,0)));
+  return min(f(pt), max(length(pt) - 10, sdPlane(pt - vec3(0, 0, sin(iGlobalTime)), vec4(0,0,1,0))));
 }
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
@@ -44,7 +44,7 @@ vec3 scene(vec3 rayorig, vec3 raydir) {
   vec4 res = raymarch(rayorig, raydir);  
   return (res.w < renderDepth)
       ? shade(res.xyz, rayorig)
-      : background;
+      : getBackground(raydir);
 }
 
 void main() {

@@ -103,7 +103,7 @@ vec3 renderScene(vec3 rayorig, vec3 raydir) {
         tbd[numTbd++] = TBD(pt + 0.001 * normal, reflect(dir, normal), weight * material.mat.reflective);
       }
     } else {
-      cumulativeColor += weight * background;
+      cumulativeColor += weight * getBackground(dir);
     }
   }
    return cumulativeColor;

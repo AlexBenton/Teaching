@@ -85,6 +85,7 @@ Key        | Command
 `Space`   | Pause animations
 `[`        | Go to previous scene
 `]`        | Go to next scene
+`Ctrl+R`   | Record animated gif
 
 `ShaderDemo` also accepts the following keys:
 

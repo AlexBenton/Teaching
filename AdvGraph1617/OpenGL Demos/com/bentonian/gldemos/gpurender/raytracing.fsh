@@ -1,11 +1,8 @@
 #version 330
 
 #include "include/common.fsh"
-#define PI 3.1415926535897932384626433832795
 
 const vec3 lightPos = vec3(0, 10, 10);
-
-uniform sampler2D texture;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -49,13 +46,6 @@ Hit traceSphere(vec3 rayorig, vec3 raydir, vec3 pos, float radius) {
     }
   }
   return Hit(vec3(0), vec3(0), -1);
-}
-
-vec3 getBackground(vec3 dir) {
-  float u = 0.5 + atan(dir.z, -dir.x) / (2 * PI);
-  float v = 0.5 - asin(dir.y) / PI;
-  vec4 texColor = texture2D(texture, vec2(u, v));
-  return texColor.rgb;
 }
 
 vec3 shade(vec3 color, Hit hit, vec3 rayorig) {

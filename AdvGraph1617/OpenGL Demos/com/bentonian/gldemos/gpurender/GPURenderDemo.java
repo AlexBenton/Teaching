@@ -3,6 +3,12 @@ package com.bentonian.gldemos.gpurender;
 import static com.bentonian.framework.ui.ShaderUtil.compileProgram;
 import static com.bentonian.framework.ui.ShaderUtil.loadShader;
 
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.filechooser.FileSystemView;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL20;
 
@@ -11,11 +17,16 @@ import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.mesh.primitive.Square;
 import com.bentonian.framework.scene.Camera;
 import com.bentonian.framework.texture.BufferedImageTexture;
+import com.bentonian.framework.ui.BufferedImageRGBCanvas;
 import com.bentonian.framework.ui.DemoApp;
 
 public class GPURenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
+    "blending.fsh",
+//    "bending.fsh",
+    "repetition.fsh",
+    "ambient occlusion.fsh",
     "dancing cubes.fsh", 
     "voronoi cells.fsh",
     "refractive blobbies.fsh", 
@@ -29,9 +40,13 @@ public class GPURenderDemo extends DemoApp {
 
   private Camera frozenCamera;
   private boolean showRenderDepth;
-  private boolean paused;
   private int currentShader;
   private long elapsed, lastTick;
+  private boolean paused;
+  
+  private boolean record;
+  private long recordingStartedAt;
+  private List<BufferedImage> frames;
 
   private volatile long lastFailedTimestamp = 0;
   private volatile long lastLoadedTimestamp = 0;
@@ -42,6 +57,7 @@ public class GPURenderDemo extends DemoApp {
     this.square.setHasTexture(true);
     this.currentShader = 0;
     this.paused = false;
+    this.record = false;
     this.elapsed = 0;
     this.lastTick = System.currentTimeMillis();
 
@@ -85,6 +101,27 @@ public class GPURenderDemo extends DemoApp {
     updateUniformVec3("iRayUp", camUp);
     square.render(this);
   }
+  
+  @Override
+  public void postDraw() {
+    if (record) {
+      frames.add(BufferedImageRGBCanvas.copyOpenGlContextToImage(width, height, width, height));      
+      if (System.currentTimeMillis() - recordingStartedAt > 10000) {
+        String filename = FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + SHADERS[currentShader].replace(".fsh",  "");
+        FileUtil.writeGif(frames, filename);
+        record = false;
+        System.out.println("Recording stopped");
+      }
+      
+      // Clamp to 33FPS
+      while (System.currentTimeMillis() - lastTick > 33) {
+        try {
+          Thread.sleep(1);
+        } catch (Exception e) { }
+      }
+    }
+    super.postDraw();
+  }
 
   @Override
   protected void onResized(int width, int height) {
@@ -100,8 +137,19 @@ public class GPURenderDemo extends DemoApp {
   public void onKeyDown(int key) {
     switch (key) {
     case GLFW.GLFW_KEY_R:
-      showRenderDepth = !showRenderDepth;
-      updateUniformBoolean("iShowRenderDepth", showRenderDepth);
+      if (isControlDown()) {
+        record = !record;
+        if (record) {
+          System.out.println("Recording started");
+          recordingStartedAt = System.currentTimeMillis();
+          frames = new ArrayList<>();
+        } else {
+          System.out.println("Recording stopped");
+        }
+      } else {
+        showRenderDepth = !showRenderDepth;
+        updateUniformBoolean("iShowRenderDepth", showRenderDepth);
+      }
       break;
     case GLFW.GLFW_KEY_4:
       animateCameraToPosition(new M3d(2, 1, 2).normalized().times(8));
