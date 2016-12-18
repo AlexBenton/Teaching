@@ -56,15 +56,30 @@ float shadow(vec3 pt) {
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
   int step = 0;
+  float d = 0.0001;
   vec3 pt;
-  float d = 1;
+  float signAtRayOrigin = sign(f(rayorig));
 
-  for (float t = 0.001; step < renderDepth && d > 0.00001; t += d) {
-    float sdf;
-    
+  for (float t = d; step < renderDepth && d > 0.00001; t += d) {
     pt = rayorig + t * raydir;
-    sdf = f(pt);
-    d = abs(sdf);
+    float sdf = f(pt);
+    
+    // This is a slightly arcane workaround to handle non-linear distance functions.
+    // If the sign of the function has changed, we know that f() must have lied to us
+    // about the distance to the nearest surface.  So we rewind and step along the
+    // ray instead.
+    if (sign(sdf) != signAtRayOrigin) {
+      t -= d;
+      int ticks = 10;
+      for (float u = 0; u < ticks; u++) {
+        sdf = f(rayorig + (t + (u + 1) * d / (ticks - 1)) * raydir);
+        if (sign(sdf) != signAtRayOrigin) {
+          pt = rayorig + (t + u * d / (ticks - 1)) * raydir;
+          return vec4(pt, float(step));
+        }
+      } 
+    }
+    d = abs(sdf) * 0.99;
     step++;
   }
 
@@ -76,10 +91,12 @@ vec3 renderScene(vec3 rayorig, vec3 raydir) {
   int numTbd = 0;
   vec3 cumulativeColor = vec3(0);
 
+  raydir = normalize(raydir);
+  
   tbd[numTbd++] = TBD(rayorig, raydir, 1.0);
   for (int i = 0; i < 10 && numTbd > 0; i++) {
     vec3 src = tbd[numTbd - 1].src;
-    vec3 dir = tbd[numTbd - 1].dir;
+    vec3 dir = normalize(tbd[numTbd - 1].dir);
     float weight = tbd[numTbd - 1].weight;
     numTbd--;
 

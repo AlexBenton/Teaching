@@ -1,5 +1,12 @@
 #version 330
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// With grateful thanks to these articles by Inigo Quilez:
+//   http://iquilezles.org/www/articles/smin/smin.htm
+//   http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// 
+
 const int renderDepth = 400;
 const vec3 lightPos = vec3(0, 10, 10);
 
@@ -7,15 +14,14 @@ const vec3 lightPos = vec3(0, 10, 10);
 #include "include/signed distance functions.fsh"
 #include "include/raymarching.fsh"
 
-// Bug: highly visible artifacts appear as bend increases
 float fScene(vec3 pt) {
-  float t = (pt.y / 4.0 + 1) * PI / 2.0 * sin(iGlobalTime * 2.0 * PI / 10.0);
-  vec3 pos = vec3(cos(t) * pt.x - sin(t) * pt.z, pt.y / 4.0, sin(t) * pt.x + cos(t) * pt.z);
-  return sdCube(pos, vec3(1));
+  pt.y -= 1;
+  float t = (pt.y + 2.5) * sin(iGlobalTime) * PI / 8;
+  return sdCube(vec3(pt.x * cos(t) - pt.z * sin(t), pt.y / 2, pt.x * sin(t) + pt.z * cos(t)), vec3(1)) - 0.25;
 }
 
 float fPlane(vec3 pt) {
-  return max(length(pt) - 10, sdPlane(vec3(pt) - vec3(0, -1.5, 0), vec4(0, 1, 0, 0)));
+  return max(length(pt) - 20, sdPlane(vec3(pt) - vec3(0, -1.5, 0), vec4(0, 1, 0, 0)));
 }
 
 float f(vec3 pt) {

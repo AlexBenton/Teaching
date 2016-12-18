@@ -89,7 +89,7 @@ public class DemoApp extends GLFWCanvas {
 
     lastFrameStartMillis = now;
     frameTimestamps.add(now);
-    while (frameTimestamps.get(0) < now - 5000) {
+    while (frameTimestamps.get(0) < now - 1000) {
       frameTimestamps.remove(0);
     }
 
