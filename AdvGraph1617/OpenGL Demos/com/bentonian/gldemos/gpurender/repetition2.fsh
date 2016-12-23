@@ -12,6 +12,7 @@ const vec3 lightPos = vec3(0, 10, 10);
 const Material WHITE = Material(white, 1, 0, 0, 1);
 
 float f(vec3 pt) {
+  float ptLength = length(pt);
   float angle = atan(pt.z, pt.x);
   float radius = length(pt.xz);
   float radiusOfCenterOfRing = floor((radius + SPHERE_SIZE) / (SPHERE_SIZE * 2)) * (SPHERE_SIZE * 2);
@@ -24,7 +25,7 @@ float f(vec3 pt) {
 
   pt = pt - vec3(0, sin(iGlobalTime - radiusOfCenterOfRing / (SPHERE_SIZE * 4)), 0);
   
-  return max(length(pt) - 39, sdSphere(pt - pos, SPHERE_SIZE));
+  return max(ptLength - 39, sdSphere(pt - pos, SPHERE_SIZE));
 }
 
 SdfMaterial scene(vec3 pt) {

@@ -54,36 +54,40 @@ float shadow(vec3 pt) {
   return kd;
 }
 
+float findInterval(vec3 rayorig, vec3 raydir, float signAtRayOrigin, float t, float d, int ticks) {
+  for (int u = 0; u < ticks; u++) {
+    float sdf = f(rayorig + (t + (u + 1) * d / (ticks - 1)) * raydir);
+    if (sign(sdf) != signAtRayOrigin) {
+      return t + u * d / (ticks - 1);
+    }
+  }
+  return t;
+}
+
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
   int step = 0;
   float d = 0.0001;
-  vec3 pt;
   float signAtRayOrigin = sign(f(rayorig));
+  float t;
 
-  for (float t = d; step < renderDepth && d > 0.00001; t += d) {
-    pt = rayorig + t * raydir;
-    float sdf = f(pt);
+  for (t = d; step < renderDepth && d > 0.00001; t += d) {
+    float sdf = f(rayorig + t * raydir);
     
     // This is a slightly arcane workaround to handle non-linear distance functions.
-    // If the sign of the function has changed, we know that f() must have lied to us
-    // about the distance to the nearest surface.  So we rewind and step along the
-    // ray instead.
+    // If the sign of the function has changed, we know that f() must have overestimated
+    // and we've overshot into the nearest surface.  So we rewind and step along the
+    // ray instead, in three progressively finer intervals (so, 30 extra steps max).
     if (sign(sdf) != signAtRayOrigin) {
-      t -= d;
-      int ticks = 10;
-      for (float u = 0; u < ticks; u++) {
-        sdf = f(rayorig + (t + (u + 1) * d / (ticks - 1)) * raydir);
-        if (sign(sdf) != signAtRayOrigin) {
-          pt = rayorig + (t + u * d / (ticks - 1)) * raydir;
-          return vec4(pt, float(step));
-        }
-      } 
+      t = findInterval(rayorig, raydir, signAtRayOrigin, t - d, d, 10);
+      t = findInterval(rayorig, raydir, signAtRayOrigin, t, d / 10.0, 10);
+      t = findInterval(rayorig, raydir, signAtRayOrigin, t, d / 100.0, 10);
+      return vec4(rayorig + t * raydir, float(step));
     }
     d = abs(sdf) * 0.99;
     step++;
   }
 
-  return vec4(pt, float(step));
+  return vec4(rayorig + t * raydir, float(step));
 }
 
 vec3 renderScene(vec3 rayorig, vec3 raydir) {

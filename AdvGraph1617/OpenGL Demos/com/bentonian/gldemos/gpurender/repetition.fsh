@@ -10,7 +10,7 @@ const vec3 lightPos = vec3(0, 10, 10);
 float fScene(vec3 pt) {
   vec3 pos;
   pos = vec3(mod(pt.x + 2, 4) - 2, pt.y, mod(pt.z + 2, 4) - 2);  // Repeat in XZ plane only 
-  pos = mod(pt + vec3(2), 4) - vec3(2);                          // Repeat in all directions
+//  pos = mod(pt + vec3(2), 4) - vec3(2);                          // Repeat in all directions
   return max(length(pt) - 9, sdCube(pos, vec3(1)));
 }
 

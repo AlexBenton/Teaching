@@ -16,7 +16,7 @@ const vec3 lightPos = vec3(0, 10, 10);
 
 float fScene(vec3 pt) {
   pt.y -= 1;
-  float t = (pt.y + 2.5) * sin(iGlobalTime) * PI / 8;
+  float t = (pt.y + 2.5) * sin(iGlobalTime * 2 * PI / 10.0) * PI / 8;
   return sdCube(vec3(pt.x * cos(t) - pt.z * sin(t), pt.y / 2, pt.x * sin(t) + pt.z * cos(t)), vec3(1)) - 0.25;
 }
 

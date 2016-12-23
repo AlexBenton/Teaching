@@ -23,10 +23,12 @@ import com.bentonian.framework.ui.DemoApp;
 public class GPURenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
+    "affine transforms.fsh",
     "bending.fsh",
     "blending.fsh",
     "repetition.fsh",
     "repetition2.fsh",
+    "repetition3.fsh",
     "ambient occlusion.fsh",
     "dancing cubes.fsh", 
     "voronoi cells.fsh",
@@ -115,7 +117,7 @@ public class GPURenderDemo extends DemoApp {
       }
       
       // Clamp to 33FPS
-      while (System.currentTimeMillis() - lastTick > 33) {
+      while (System.currentTimeMillis() - lastTick < 33) {
         try {
           Thread.sleep(1);
         } catch (Exception e) { }

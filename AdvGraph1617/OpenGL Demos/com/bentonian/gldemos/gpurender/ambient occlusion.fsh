@@ -22,7 +22,7 @@ float getSdf(vec3 p) {
 }
 
 float getSdfWithPlane(vec3 p) {
-  return min(getSdf(p), max(length(p) - 20, sdPlane(p, vec4(0,1,0,1))));
+  return min(getSdf(p), max(length(p) - 5, sdPlane(p, vec4(0,1,0,1))));
 }
 
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
