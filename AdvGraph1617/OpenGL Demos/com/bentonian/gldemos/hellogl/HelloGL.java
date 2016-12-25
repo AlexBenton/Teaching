@@ -51,9 +51,9 @@ public class HelloGL {
     // Fragment shader source
     String[] fragment_shader = {
         "#version 330\n",
-        "out vec4 frag_colour;",
+        "out vec4 frag_color;",
         "void main() {",
-        "  frag_colour = vec4(1.0, 1.0, 1.0, 1.0);",
+        "  frag_color = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
     };
 
