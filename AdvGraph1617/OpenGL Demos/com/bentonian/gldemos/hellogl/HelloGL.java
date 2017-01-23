@@ -24,6 +24,7 @@ public class HelloGL {
     GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
     GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
     GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
+    GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
     long window = GLFW.glfwCreateWindow(800 /* width */, 600 /* height */, "HelloGL", 0, 0);
     GLFW.glfwMakeContextCurrent(window);
     GLFW.glfwSwapInterval(1);

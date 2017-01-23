@@ -1,5 +1,12 @@
 #version 330
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// With grateful thanks to these articles by Inigo Quilez:
+//   http://iquilezles.org/www/articles/smin/smin.htm
+//   http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// 
+
 const int renderDepth = 400;
 const vec3 lightPos = vec3(0, 10, 10);
 
@@ -8,14 +15,18 @@ const vec3 lightPos = vec3(0, 10, 10);
 #include "include/raymarching.fsh"
 
 float fScene(vec3 pt) {
-  vec3 pos;
-  pos = vec3(mod(pt.x + 2, 4) - 2, pt.y, mod(pt.z + 2, 4) - 2);  // Repeat in XZ plane only 
-//  pos = mod(pt + vec3(2), 4) - vec3(2);                          // Repeat in all directions
-  return max(length(pt) - 9, sdCube(pos, vec3(1)));
+  float t = smoothstep(0, 1, mod(iGlobalTime, 1));
+  float arr[3] = float[](
+    sdCube(pt, vec3(1)),
+    sdSphere(pt, 1),
+    sdTorus(pt, vec2(1, 0.25))
+  );
+
+  return arr[int(floor(iGlobalTime)) % 3] * (1 - t) + arr[int(floor(iGlobalTime + 1)) % 3] * t;
 }
 
 float fPlane(vec3 pt) {
-  return max(length(pt) - 10, sdPlane(pt - vec3(0, -1.5, 0), vec4(0, 1, 0, 0)));
+  return max(length(pt) - 20, sdPlane(vec3(pt) - vec3(0, -1.5, 0), vec4(0, 1, 0, 0)));
 }
 
 float f(vec3 pt) {

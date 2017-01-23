@@ -23,6 +23,7 @@ import com.bentonian.framework.ui.DemoApp;
 public class GPURenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
+    "interpolation.fsh",
     "affine transforms.fsh",
     "bending.fsh",
     "blending.fsh",
