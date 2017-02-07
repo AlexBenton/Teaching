@@ -13,8 +13,10 @@ You can use this code freely for inspiration, examples of how to do it, examples
 These demos are in two parts: a `framework` project, which contains all the libraries used by all the sample code, and an `OpenGL Demos` project, which contains all the actual demos.
 
 #### Eclipse setup
-1. Make sure you've got the '[m2e](http://download.eclipse.org/technology/m2e/releases/)' eclipse plugin installed.  This is Maven, which will download supporting libraries for you.
-2. Make sure you've got the '[mavennatives](https://code.google.com/p/mavennatives/)' eclipse plugin installed.  This is a support module for Maven which can download OS-specific binary libraries.  (UPDATE for 2016: mavennatives is no longer under active development.  code.google.com is now deprecated and may go away.)
+1. Install [Eclipse](https://eclipse.org/downloads/).  You can also use IntelliJ or other Java compilers, but we've had reports of difficulty accessing compiled resources from IntelliJ.
+2. Make sure you've got the '[m2e](http://download.eclipse.org/technology/m2e/releases/)' (Maven for Eclipse) eclipse plugin installed.  This is Maven, which will download supporting libraries for you.  It's installed by default in most Eclipse installs.
+
+The `framework` project includes a `pom.xml` file which should automatically download and install LWJGL.  The version of LWJGL downloaded is specified in the `<lwjgl.version>` value.  If LWJGL does not download automatically (we've only tested in limited configurations) you can also download it yourself from [www.lwjgl.org](https://www.lwjgl.org/download).
 
 #### Framework
 1. Click on File / Import...
@@ -24,7 +26,7 @@ These demos are in two parts: a `framework` project, which contains all the libr
 5. Right-click on the `framework` project in Eclipse, choose Properties.
   1. Go to Java Build Path
   2. Choose 'Order and Export'
-  3. Check the 'Maven Dependencies' export
+  3. Tick the 'Maven Dependencies' export
   4. Hit OK
 
 #### OpenGL Demos

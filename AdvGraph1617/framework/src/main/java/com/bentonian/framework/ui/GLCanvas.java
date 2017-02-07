@@ -64,8 +64,16 @@ public class GLCanvas {
     updateUniforms();
   }
 
-  public void pop() {
+  /**
+   * Pop stack without updating uniforms (useful if you know you're about
+   * to push/pop again)
+   */
+  public void quickPop() {
     modelStack.pop();
+  }
+
+  public void pop() {
+    quickPop();
     updateUniforms();
   }
 

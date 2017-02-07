@@ -9,6 +9,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * The specifics of the LWJGL implementation--setup and shutdown, key codes, etc. 
@@ -16,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 public class GLFWCanvas extends GLWindowedCanvas {
 
   private long window;
+  private GLFWErrorCallback errorCallback;
 
   public GLFWCanvas(String title) {
     super(title);
@@ -38,7 +40,7 @@ public class GLFWCanvas extends GLWindowedCanvas {
     GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
     GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
     GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
-    window = GLFW.glfwCreateWindow(width, height, title, 0, 0);
+    window = GLFW.glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == 0) {
       throw new RuntimeException("Failed to create window");
     }

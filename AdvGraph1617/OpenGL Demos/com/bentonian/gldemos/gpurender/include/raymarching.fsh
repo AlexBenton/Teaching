@@ -64,6 +64,7 @@ float findInterval(vec3 rayorig, vec3 raydir, float signAtRayOrigin, float t, fl
   return t;
 }
 
+bool expectSeverelyNonlinearDistance = false;
 vec4 raymarch(vec3 rayorig, vec3 raydir) {
   int step = 0;
   float d = 0.0001;
@@ -73,11 +74,11 @@ vec4 raymarch(vec3 rayorig, vec3 raydir) {
   for (t = d; step < renderDepth && d > 0.00001; t += d) {
     float sdf = f(rayorig + t * raydir);
     
-    // This is a slightly arcane workaround to handle non-linear distance functions.
+    // This is a moderately brute-force workaround to handle non-linear distance functions.
     // If the sign of the function has changed, we know that f() must have overestimated
     // and we've overshot into the nearest surface.  So we rewind and step along the
     // ray instead, in three progressively finer intervals (so, 30 extra steps max).
-    if (sign(sdf) != signAtRayOrigin) {
+    if (expectSeverelyNonlinearDistance && sign(sdf) != signAtRayOrigin) {
       t = findInterval(rayorig, raydir, signAtRayOrigin, t - d, d, 10);
       t = findInterval(rayorig, raydir, signAtRayOrigin, t, d / 10.0, 10);
       t = findInterval(rayorig, raydir, signAtRayOrigin, t, d / 100.0, 10);

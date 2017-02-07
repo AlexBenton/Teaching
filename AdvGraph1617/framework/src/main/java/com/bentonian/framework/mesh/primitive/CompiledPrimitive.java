@@ -29,6 +29,10 @@ public class CompiledPrimitive extends MaterialPrimitive {
     }
   }
   
+  public GLVertexData getVertexData() {
+    return vao;
+  }
+  
   public void dispose() {
     vao.dispose();
   }

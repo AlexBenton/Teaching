@@ -25,19 +25,19 @@ public class GPURenderDemo extends DemoApp {
   private static final String[] SHADERS = { 
     "interpolation.fsh",
     "affine transforms.fsh",
-    "bending.fsh",
     "blending.fsh",
-    "repetition.fsh",
+    "bending.fsh",
+//    "repetition.fsh",
     "repetition2.fsh",
-    "repetition3.fsh",
-    "ambient occlusion.fsh",
+//    "ambient occlusion.fsh",
     "dancing cubes.fsh", 
-    "voronoi cells.fsh",
+//    "voronoi cells.fsh",
     "refractive blobbies.fsh", 
     "reflection and refraction.fsh", 
     "primitives.fsh", 
     "noise.fsh",
     "raytracing.fsh", 
+    "lecture demo.fsh",
   };
 
   private final Square square;

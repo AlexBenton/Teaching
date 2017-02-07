@@ -42,5 +42,6 @@ SdfMaterial scene(vec3 pt) {
 }
 
 void main() {
+  expectSeverelyNonlinearDistance = true;
   fragColor = vec4(renderScene(iRayOrigin, getRayDir(iRayDir, iRayUp, texCoord)), 1.0);
 }

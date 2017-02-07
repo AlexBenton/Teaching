@@ -15,6 +15,7 @@ public class ShaderDemo extends DemoApp {
 
   private static final ShaderRenderer[] shaders = {
     new ShaderRenderer("basic.vsh", "basic.fsh"),
+    new ShaderRenderer("errata.vsh", "errata.fsh"),
     new ShaderRenderer("gouraud.vsh", "gouraud.fsh"),
     new ShaderRenderer("phong.vsh", "phong.fsh"),
     new ShaderRenderer("procedural.vsh", "procedural.fsh"),

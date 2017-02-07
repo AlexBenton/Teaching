@@ -1,11 +1,13 @@
 package com.bentonian.gldemos.hierarchy;
 
+import static com.bentonian.framework.math.MathConstants.Y_AXIS;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import com.bentonian.framework.math.M3d;
 import com.bentonian.framework.math.M4x4;
-import com.bentonian.framework.mesh.primitive.Sphere;
+import com.bentonian.framework.mesh.primitive.Cube;
 import com.bentonian.framework.scene.Primitive;
 import com.bentonian.framework.ui.DemoApp;
 import com.bentonian.framework.ui.GLVertexData;
@@ -13,7 +15,7 @@ import com.bentonian.framework.ui.GLVertexData;
 
 public class HierarchyDemo extends DemoApp {
 
-  private static final Primitive SPHERE = new Sphere(10, 8)
+  private static final Primitive CUBE = new Cube()
       .scale(new M3d(0.25, 0.25, 0.25));
   private static final GLVertexData LINES = GLVertexData.beginLineSegments()
       .color(new M3d(1, 0, 0))
@@ -24,6 +26,7 @@ public class HierarchyDemo extends DemoApp {
   private static final M4x4 SHRINK = M4x4.scaleMatrix(new M3d(0.75, 0.75, 0.75));
   private static final M4x4 LEFT = M4x4.translationMatrix(new M3d(-1, -0.75, 0));
   private static final M4x4 RIGHT = M4x4.translationMatrix(new M3d(1, -0.75, 0));
+  private static final M4x4 UP = M4x4.translationMatrix(new M3d(0, 1, 0));
 
   private int numLevels = 1;
   private int tick = 0;
@@ -43,28 +46,28 @@ public class HierarchyDemo extends DemoApp {
   void renderLevel(int level) {
     float t = ((float) tick) / 25.0f;
 
-    push(M4x4.rotationMatrix(new M3d(0, 1, 0), t));
-    SPHERE.render(this);
+    push(M4x4.rotationMatrix(Y_AXIS, t));
+    CUBE.render(this);
     if (level > 0) {
       push(SHRINK);
       LINES.render(this);
 
       push(LEFT);
-      renderLevel(level-1);
-      pop();
+      renderLevel(level - 1);
+      quickPop();
 
       push(RIGHT);
-      renderLevel(level-1);
-      pop();
+      renderLevel(level - 1);
+      quickPop();
 
-      pop();
+      quickPop();
     }
-    pop();
+    quickPop();
   }
 
   @Override
   public void draw() {
-    push(M4x4.translationMatrix(new M3d(0, 1, 0)));
+    push(UP);
     renderLevel(numLevels);
     if (!paused) {
       tick++;
@@ -78,10 +81,12 @@ public class HierarchyDemo extends DemoApp {
 
     case GLFW.GLFW_KEY_EQUAL:
       numLevels = Math.min(numLevels + 1, 12);
+      setTitle("Hierarchical model, level " + numLevels + " (" + (int) (Math.pow(2, numLevels + 1) - 1) + " cubes)");
       break;
 
     case GLFW.GLFW_KEY_MINUS:
       numLevels = Math.max(numLevels - 1, 0);
+      setTitle("Hierarchical model, level " + numLevels + " (" + (int) (Math.pow(2, numLevels + 1) - 1) + " cubes)");
       break;
 
     case GLFW.GLFW_KEY_SPACE:
