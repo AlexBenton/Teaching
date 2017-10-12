@@ -18,24 +18,24 @@ float sphere(vec3 p) {
   return length(p) - 1;
 }
 
+// Rotation in the XZ plane
+vec3 rotateXZ(vec3 pt, float t) {
+  mat3 R = mat3(
+      vec3(cos(t),  0,       sin(t)),
+      vec3(0,       1,       0     ),
+      vec3(-sin(t), 0,       cos(t)));
+  return R * pt;
+}
+
 // Scene function - all scene elements except the ground plane
 float fScene(vec3 pt) {
-
-  // Rotation in XZ
-  float t = sin(iGlobalTime) * PI / 4;
-  t = t * length(pt) / 10;
-  mat4 R = mat4(
-      vec4(cos(t),  0,       sin(t), 0),
-      vec4(0,       1,       0,      0),
-      vec4(-sin(t), 0,       cos(t), 0),
-      vec4(0,       0,       0,      1));
-  pt = (R * vec4(pt, 1)).xyz;
-
-  vec3 pos = pt;
-  pos.x = mod(pos.x + 2, 4) - 2;
+  float t = 0;
+//  t = sin(t) * PI / 4;
+//  t = t * length(pt / 20);
+  vec3 pos = rotateXZ(pt, t);
+  pos.x = mod(pos.x, 4);
   pos.z = mod(pos.z + 2, 4) - 2;
   float f = cube(pos);
-  
   float g = sphere(pt / 20);
   
   return max(f, g);

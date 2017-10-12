@@ -23,21 +23,21 @@ import com.bentonian.framework.ui.DemoApp;
 public class GPURenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
-    "bezier.fsh",
+    "dancing cubes.fsh", 
     "interpolation.fsh",
     "affine transforms.fsh",
     "blending.fsh",
     "bending.fsh",
+    "ambient occlusion.fsh",
     "repetition.fsh",
     "repetition2.fsh",
-    "ambient occlusion.fsh",
-    "dancing cubes.fsh", 
-    "voronoi cells.fsh",
-    "refractive blobbies.fsh", 
+//    "voronoi cells.fsh",
+//    "refractive blobbies.fsh", 
     "reflection and refraction.fsh", 
     "primitives.fsh", 
     "noise.fsh",
     "raytracing.fsh", 
+    "bezier.fsh",
     "lecture demo.fsh",
   };
 
