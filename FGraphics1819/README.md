@@ -1,4 +1,4 @@
-Sample code for Advanced Graphics course, Cambridge University.
+Sample code for Further Graphics
 
 
 # Warning
@@ -14,26 +14,9 @@ These demos are in two parts: a `framework` project, which contains all the libr
 
 #### Eclipse setup
 1. Install [Eclipse](https://eclipse.org/downloads/).  You can also use IntelliJ or other Java compilers, but we've had reports of difficulty accessing compiled resources from IntelliJ.
-2. Make sure you've got the '[m2e](http://download.eclipse.org/technology/m2e/releases/)' (Maven for Eclipse) eclipse plugin installed.  This is Maven, which will download supporting libraries for you.  It's installed by default in most Eclipse installs.
+2. Fetch all Maven dependencies, which are baked into the `framework` project.  To fetch all Maven dependencies, type `Alt+F5` or right click on `framework`, `Maven`, `Update Project...`
+3. The Maven update should automatically download and install [LWJGL](https://www.lwjgl.org/download).  The version of LWJGL downloaded is specified in the `<lwjgl.version>` value of the Maven config file, `pom.xml`.
 
-The `framework` project includes a `pom.xml` file which should automatically download and install LWJGL.  The version of LWJGL downloaded is specified in the `<lwjgl.version>` value.  If LWJGL does not download automatically (we've only tested in limited configurations) you can also download it yourself from [www.lwjgl.org](https://www.lwjgl.org/download).
-
-#### Framework
-1. Click on File / Import...
-2. Select the "Existing Maven Projects" importer
-3. Browse to the root of the `framework` project; the importer should find the pom.xml file.
-4. Import it.  All the rest of the directory structure should follow.
-5. Right-click on the `framework` project in Eclipse, choose Properties.
-  1. Go to Java Build Path
-  2. Choose 'Order and Export'
-  3. Tick the 'Maven Dependencies' export
-  4. Hit OK
-
-#### OpenGL Demos
-1. Click on File / Import...
-2. Select the "Existing Projects into Workspace" importer
-3. Browse to the root of the `OpenGL Demos` project.
-4. Import the project.  It should automatically pick up a project dependency on `framework`.
 
 # What's in these demos
 
