@@ -12,10 +12,29 @@ You can use this code freely for inspiration, examples of how to do it, examples
 
 These demos are in two parts: a `framework` project, which contains all the libraries used by all the sample code, and an `OpenGL Demos` project, which contains all the actual demos.
 
-#### Eclipse setup
+## Eclipse setup
 1. Install [Eclipse](https://eclipse.org/downloads/).  You can also use IntelliJ or other Java compilers, but we've had reports of difficulty accessing compiled resources from IntelliJ.
 2. Fetch all Maven dependencies, which are baked into the `framework` project.  To fetch all Maven dependencies, type `Alt+F5` or right click on `framework`, `Maven`, `Update Project...`
-3. The Maven update should automatically download and install [LWJGL](https://www.lwjgl.org/download).  The version of LWJGL downloaded is specified in the `<lwjgl.version>` value of the Maven config file, `pom.xml`.
+3. The Maven update should automatically download and install [LWJGL](https://www.lwjgl.org/download).  The version of LWJGL downloaded is specified in the `<lwjgl.version>` value of the Maven config file, `pom.xml`.  If LWJGL does not download automatically (we've only tested in limited configurations) you can also download it yourself from [www.lwjgl.org](https://www.lwjgl.org/download).
+
+### Project dependencies
+
+#### Framework
+1. Click on File / Import...
+2. Select the "Existing Maven Projects" importer
+3. Browse to the root of the `framework` project; the importer should find the pom.xml file.
+4. Import it.  All the rest of the directory structure should follow.
+5. Right-click on the `framework` project in Eclipse, choose Properties.
+  1. Go to Java Build Path
+  2. Choose 'Order and Export'
+  3. Tick the 'Maven Dependencies' export
+  4. Hit OK
+
+##### OpenGL Demos
+1. Click on File / Import...
+2. Select the "Existing Projects into Workspace" importer
+3. Browse to the root of the `OpenGL Demos` project.
+4. Import the project.  It should automatically pick up a project dependency on `framework`.
 
 
 # What's in these demos
