@@ -1,4 +1,4 @@
-Sample code for Advanced Graphics course, Cambridge University.
+Sample code for Further Graphics course, Cambridge University.
 
 
 # Warning
