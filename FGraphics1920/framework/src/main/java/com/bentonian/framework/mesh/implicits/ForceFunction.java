@@ -1,9 +1,10 @@
 package com.bentonian.framework.mesh.implicits;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.material.HasColor;
@@ -12,13 +13,13 @@ import com.google.common.collect.Sets;
 
 public class ForceFunction {
 
-  private final WeakHashMap<Vec3, Sample> cache;
+  private final Map<Vec3, Sample> cache;
   private boolean cachingEnabled = true;
 
   private List<Force> forces = new LinkedList<Force>();
 
   public ForceFunction() {
-    this.cache = new WeakHashMap<Vec3, Sample>();
+    this.cache = new HashMap<Vec3, Sample>();
   }
   
   public double getCutoff() {

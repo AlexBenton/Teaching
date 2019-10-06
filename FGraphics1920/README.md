@@ -43,9 +43,11 @@ Main class                                | Description
 ------------------------------------------|------------
 `com.bentonian.gldemos.bezier`            | Bivariate 4x4 Bezier patch
 `com.bentonian.gldemos.blobby`            | Implicit surface ("Blobby") model animation
-`com.bentonian.gldemos.gpurender`         | Examples of sphere-marched signed distance field geometry
 `com.bentonian.gldemos.marchingcubes`     | Marching cubes in action
-`com.bentonian.gldemos.shaders`           | A suite of GLSL shaders applied to a suite of different models
+`com.bentonian.gldemos.particles`          | Simple particle system
+`com.bentonian.gldemos.sdfpolygonization` | Generating polygons from a GPU-only SDF described in GLSL
+`com.bentonian.gldemos.sdfrender`         | Examples of sphere-marched signed distance field geometry
+`com.bentonian.gldemos.shaders`           | A suite of GLSL shaders applied to a suite of polygonal models
 `com.bentonian.gldemos.subdivision`       | Loop, Doo-Sabin and Catmull-Clark subdivision
 `com.bentonian.gldemos.voronoi`           | Interactive Voronoi Diagram
 
@@ -64,7 +66,30 @@ Mouse      | Spin around the origin
 `3`        | Reset to looking along the X axis
 `Ctrl+P`   | Capture screenshot
 
-`GPURenderDemo` also accepts the following keys:
+`BlobbyDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`space`   | Pause / Unpause
+`b`        | Toggle octree boxes
+`c`        | Toggle color shading per blobby
+`e`        | Toggle surface edges
+`f`        | Toggle surface faces
+`l`        | Toggle blobby function subframe
+`s`        | Toggle smoothed implicit surface edge interpolation
+`-`        | Lower target refinement level
+`=`        | Raise target refinement level
+(drag)     | Drag control point with mouse
+
+`SDFPolygonizationDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`b`        | Toggle octree boxes
+`e`        | Toggle surface edges
+`f`        | Toggle surface faces
+
+`SDFRenderDemo` also accepts the following keys:
 
 Key        | Command
 -----------|---------
@@ -95,3 +120,11 @@ Key        | Command
 `j`        | Go to next model
 `e`        | Toggle surface edges
 `n`        | Toggle surface normals
+
+`VoronoiDemo` also accepts the following keys:
+
+Key        | Command
+-----------|---------
+`[`        | Go to previous model
+`]`        | Go to next model
+(click)    | Add up to 16 points in the Voronoi shader

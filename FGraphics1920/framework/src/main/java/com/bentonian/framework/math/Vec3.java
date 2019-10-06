@@ -45,6 +45,10 @@ public class Vec3 {
     vec[2] = z;
   }
   
+  public void set(double v) {
+    vec[0] = vec[1] = vec[2] = v;
+  }
+  
   public void set(Vec3 A) {
     vec[0] = A.vec[0];
     vec[1] = A.vec[1];

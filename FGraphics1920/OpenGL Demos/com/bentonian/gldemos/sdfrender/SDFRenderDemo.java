@@ -1,4 +1,4 @@
-package com.bentonian.gldemos.gpurender;
+package com.bentonian.gldemos.sdfrender;
 
 import static com.bentonian.framework.ui.ShaderUtil.loadShader;
 
@@ -20,7 +20,7 @@ import com.bentonian.framework.ui.BufferedImageRGBCanvas;
 import com.bentonian.framework.ui.DemoApp;
 import com.bentonian.framework.ui.ShaderAutoloader;
 
-public class GPURenderDemo extends DemoApp {
+public class SDFRenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
     "dancing cubes.fsh", 
@@ -54,7 +54,7 @@ public class GPURenderDemo extends DemoApp {
   
   private ShaderAutoloader loader;
 
-  protected GPURenderDemo() {
+  protected SDFRenderDemo() {
     super("GPU Render");
     this.square = new Square();
     this.square.setHasTexture(true);
@@ -69,7 +69,7 @@ public class GPURenderDemo extends DemoApp {
     animateCameraToPosition(new Vec3(20, 10, 20));
 
     // This isn't actually textured onto the quad, but it's a handy way to pass the image
-    this.square.setTexture(new BufferedImageTexture(GPURenderDemo.class, "background.jpg"));
+    this.square.setTexture(new BufferedImageTexture(SDFRenderDemo.class, "background.jpg"));
 
     this.loader = new ShaderAutoloader(
         new String[] { getRoot(), getRoot() + "include/" },
@@ -184,12 +184,12 @@ public class GPURenderDemo extends DemoApp {
   }
 
   private String getRoot() {
-    return GPURenderDemo.class.getPackage().getName().replace(".", "/") + "/";
+    return SDFRenderDemo.class.getPackage().getName().replace(".", "/") + "/";
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
   public static void main(String[] args) {
-    new GPURenderDemo().run();
+    new SDFRenderDemo().run();
   }
 }

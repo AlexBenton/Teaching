@@ -5,11 +5,16 @@ import com.bentonian.framework.math.Vec3;
 import com.bentonian.framework.texture.TexCoord;
 import com.bentonian.framework.ui.GLCanvas;
 import com.bentonian.framework.ui.GLVertexData;
+import com.bentonian.framework.ui.Vertex;
 
 public class CompiledPrimitive extends MaterialPrimitive {
 
   private final GLVertexData vao;
   
+  public CompiledPrimitive(GLVertexData vao) {
+    this.vao = vao;
+  }
+
   public CompiledPrimitive(GLVertexData.Mode mode) {
     this.vao = new GLVertexData(mode);
   }
@@ -37,20 +42,20 @@ public class CompiledPrimitive extends MaterialPrimitive {
     vao.dispose();
   }
 
-  protected void normal(Vec3 normal) {
+  public void normal(Vec3 normal) {
     vao.normal(normal);
   }
 
-  protected void color(Vec3 color) {
+  public void color(Vec3 color) {
     vao.color(color);
   }
 
-  protected void textureCoordinates(TexCoord tc) {
+  public void textureCoordinates(TexCoord tc) {
     vao.textureCoordinates(tc);
   }
 
-  protected void vertex(Vec3 point) {
-    vao.vertex(point);
+  public Vertex vertex(Vec3 point) {
+    return vao.vertex(point);
   }
   
   @Override

@@ -14,14 +14,13 @@ public class ShaderDemo extends DemoApp {
   static private final double CAMERA_DISTANCE = 5.0;
 
   private static final ShaderRenderer[] shaders = {
-    new VoronoiRenderer(),
-    new ShaderRenderer("quilez-voronoi.vsh", "quilez-voronoi.fsh"),
     new ShaderRenderer("basic.vsh", "basic.fsh"),
     new ShaderRenderer("gouraud.vsh", "gouraud.fsh"),
     new ShaderRenderer("phong.vsh", "phong.fsh"),
     new ShaderRenderer("procedural.vsh", "procedural.fsh"),
     new GoochRenderer(),
     new ShaderRenderer("lattice.vsh", "lattice.fsh"),
+    new ShaderRenderer("quilez-voronoi.vsh", "quilez-voronoi.fsh"),
     new PingRenderer(),
     new MandelbrotRenderer(),
   };
@@ -34,7 +33,6 @@ public class ShaderDemo extends DemoApp {
   private float mandelbrotCenterY = 0;
   private boolean spin = false;
   private Vec3 pingPoint;
-  private Vec3 pongPoint;
 
   public ShaderDemo() {
     super("Shader demo");
@@ -118,15 +116,6 @@ public class ShaderDemo extends DemoApp {
   }
 
   @Override
-  public void onMouseDown(int x, int y) {
-    super.onMouseDown(x, y);
-    if ((currentShader != -1) 
-        && shaders[currentShader].getClass().getName().contains("Voronoi")) {
-      pongPoint = pickPoint(model.getGeometry(), x, y);
-    }
-  }
-
-  @Override
   protected void draw() {
     if (spin) {
       getCamera().rotate(getCamera().getLocalToParent().extract3x3().times(new Vec3(0, 1, 0)), 0.01);
@@ -183,10 +172,6 @@ public class ShaderDemo extends DemoApp {
 
   Vec3 getPingPoint() {
     return pingPoint;
-  }
-
-  Vec3 getPongPoint() {
-    return pongPoint;
   }
 
   public static void main(String[] args) {

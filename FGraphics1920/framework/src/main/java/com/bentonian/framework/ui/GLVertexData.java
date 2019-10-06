@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
 public class GLVertexData {
 
   public static enum Mode {
-    NONE, TRIANGLES, QUADS, LINE_SEGMENTS, LINE_TRIANGLES, LINE_QUADS,
+    NONE, POINTS, TRIANGLES, QUADS, LINE_SEGMENTS, LINE_TRIANGLES, LINE_QUADS,
   }
 
   private final Mode glMode;
@@ -55,6 +55,10 @@ public class GLVertexData {
     this.color = new Vec3(1, 1, 1);
     this.hasTexture = false;
     this.isCompiled = false;
+  }
+
+  public static GLVertexData beginPoints() {
+    return new GLVertexData(GLVertexData.Mode.POINTS);
   }
 
   public static GLVertexData beginQuads() {
@@ -86,13 +90,17 @@ public class GLVertexData {
   public boolean hasTexture() {
     return hasTexture;
   }
+  
+  public List<Vertex> getVertices() {
+    return vertices;
+  }
 
   /**
    * This implementation is NOT OPTIMAL: quads are converted into pairs of
    * triangles instead of triangle strips, and triangle and line strips are
    * unsupported.
    */
-  public GLVertexData vertex(Vec3 point) {
+  public Vertex vertex(Vec3 point) {
     Preconditions.checkState(!isCompiled);
     Vertex v = new Vertex(point);
     v.setNormal(normal);
@@ -124,7 +132,7 @@ public class GLVertexData {
     default:
       break;
     }
-    return this;
+    return v;
   }
 
   public GLVertexData normal(Vec3 normal) {
@@ -187,13 +195,17 @@ public class GLVertexData {
       GL15.glDeleteBuffers(colorVertexBufferId);
       GL15.glDeleteBuffers(texCoordsVertexBufferId);
       GL30.glDeleteVertexArrays(vertexArrayId);
-      vertices.clear();
+      onDispose();
       isCompiled = false;
     }
   }
 
   // ///////////////////////////////////////////////////////////////////////////
 
+  protected void onDispose() {
+    vertices.clear();
+  }
+  
   private void compile(GLCanvas glCanvas) {
     int program = glCanvas.getProgram();
 
@@ -255,6 +267,8 @@ public class GLVertexData {
 
   private int getGlMode() {
     switch (glMode) {
+    case POINTS:
+      return GL11.GL_POINTS;
     case LINE_SEGMENTS:
     case LINE_TRIANGLES:
     case LINE_QUADS:
