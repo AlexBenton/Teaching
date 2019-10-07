@@ -6,9 +6,10 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-import com.bentonian.framework.math.Vec3;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersections;
+import com.bentonian.framework.math.Vec3;
+import com.bentonian.framework.mesh.Mesh;
 import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.MeshVertex;
 import com.bentonian.framework.scene.IsRayTraceable;
@@ -28,21 +29,37 @@ public class Sphere extends MeshPrimitiveWithTexture implements IsRayTraceable {
     MeshVertex[][] vertices = new MeshVertex[du][dv];
     for (int u = 0; u < du; u++) {
       for (int v = 0; v < dv; v++) {
-        double s = u * PI * 2 / (du - 1);
+        double s = u * PI * 2 / (du + 1);
         double t = v * PI / (dv - 1);
         vertices[u][v] = new MeshVertex(cos(s) * sin(t), -cos(t), sin(s) * sin(t));
       }
     }
-    for (int u = 0; u < du - 1; u++) {
-      for (int v = 0; v < dv - 1; v++) {
-        getMesh().add(new MeshFace(
-            vertices[u][v],
-            vertices[u][(v + 1) % dv],
-            vertices[(u + 1) % du][(v + 1) % dv],
-            vertices[(u + 1) % du][v]));
+    
+    Mesh mesh = getMesh();
+    for (int v = 0; v < dv; v++) {
+      for (int u = 0; u < du; u++) {
+        if (v == 0) {
+          mesh.add(new MeshFace(
+              vertices[u][v],
+              vertices[u][(v + 1) % dv],
+              vertices[(u + 1) % du][(v + 1) % dv]));
+        } else if (v == dv - 1) {
+          mesh.add(new MeshFace(
+              vertices[u][v],
+              vertices[(u + 1) % du][(v + 1) % dv],
+              vertices[(u + 1) % du][v]));
+        } else {
+          mesh.add(new MeshFace(
+              vertices[u][v],
+              vertices[u][(v + 1) % dv],
+              vertices[(u + 1) % du][(v + 1) % dv],
+              vertices[(u + 1) % du][v]));
+        }
       }
     }
-    getMesh().computeAllNormals();
+    for (MeshVertex v : getMesh().getVertices()) {
+      v.setNormal(v.normalized());
+    }
     setRenderStyle(RenderStyle.NORMALS_BY_VERTEX);
   }
 

@@ -20,6 +20,7 @@ public class ControlWidget extends Sphere implements MouseEventHandler {
   private Vec3 intersectionOffset;
 
   public ControlWidget() {
+    super(40, 20);
     setColor(GRAY);
   }
 

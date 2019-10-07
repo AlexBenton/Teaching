@@ -1,10 +1,10 @@
 package com.bentonian.framework.mesh.primitive;
 
 import com.bentonian.framework.material.Material;
-import com.bentonian.framework.math.Vec3;
 import com.bentonian.framework.math.Ray;
 import com.bentonian.framework.math.RayIntersection;
 import com.bentonian.framework.math.RayIntersections;
+import com.bentonian.framework.math.Vec3;
 import com.bentonian.framework.mesh.Mesh;
 import com.bentonian.framework.mesh.MeshFace;
 import com.bentonian.framework.mesh.MeshVertex;
@@ -84,9 +84,9 @@ public class MeshPrimitive extends CompiledPrimitive implements IsRayTraceable {
       Double t = ray.intersectsTriangle(A, B, C, face.getNormal());
       if (t != null) {
         Vec3 pt = ray.at(t);
+        Material material = getMaterial(pt);
         Vec3 normal = (renderStyle == RenderStyle.NORMALS_BY_FACE)
             ? face.getNormal() : getNormalFromBarycentricWeights(A, B, C, pt);
-        Material material = getMaterial(pt);
         hits.add(new RayIntersection(this, t, pt, normal, material));
       }
     }

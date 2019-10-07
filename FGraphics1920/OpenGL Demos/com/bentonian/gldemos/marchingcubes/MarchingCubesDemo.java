@@ -66,10 +66,11 @@ public class MarchingCubesDemo extends DemoApp {
     this.frozenCamera = new Camera(getCamera());
     animateCameraToPosition(new Vec3(20, 10, 20));
 
+    String root = MarchingCubesDemo.class.getPackage().getName().replace(".", "/") + "/";
     this.loader = new ShaderAutoloader(
-        new String[] { getRoot(), getRoot() + "include/" },
-        () -> loadShader(GL20.GL_VERTEX_SHADER, getRoot() + "shader.vsh"),
-        () -> loadShader(GL20.GL_FRAGMENT_SHADER, getRoot() + "shader.fsh"),
+        new String[] { root },
+        () -> loadShader(GL20.GL_VERTEX_SHADER, root + "shader.vsh"),
+        () -> loadShader(GL20.GL_FRAGMENT_SHADER, root + "shader.fsh"),
         () -> exitRequested,
         (p) -> useProgram(p),
         (e) -> System.err.println(e)
@@ -371,10 +372,6 @@ public class MarchingCubesDemo extends DemoApp {
     default: super.onKeyDown(key);
       break;
     }
-  }
-
-  private String getRoot() {
-    return MarchingCubesDemo.class.getPackage().getName().replace(".", "/") + "/";
   }
 
   /////////////////////////////////////////////////////////////////////////////
