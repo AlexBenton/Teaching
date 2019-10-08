@@ -23,22 +23,19 @@ import com.bentonian.framework.ui.ShaderAutoloader;
 public class SDFRenderDemo extends DemoApp {
 
   private static final String[] SHADERS = { 
-    "dancing cubes.fsh", 
     "interpolation.fsh",
+    "primitives.fsh", 
     "affine transforms.fsh",
     "blending.fsh",
     "bending.fsh",
     "ambient occlusion.fsh",
     "repetition.fsh",
-    "repetition2.fsh",
-//    "voronoi cells.fsh",
     "reflection and refraction.fsh", 
-    "primitives.fsh", 
-//    "noise.fsh",
     "raytracing.fsh", 
-//    "bezier.fsh",
     "simple metaballs.fsh", 
     "lecture demo.fsh",
+//    "noise.fsh",
+//    "bezier.fsh",
   };
 
   private final Square square;
@@ -55,7 +52,7 @@ public class SDFRenderDemo extends DemoApp {
   private ShaderAutoloader loader;
 
   protected SDFRenderDemo() {
-    super("GPU Render");
+    super("SDF Render");
     this.square = new Square();
     this.square.setHasTexture(true);
     this.currentShader = 0;
