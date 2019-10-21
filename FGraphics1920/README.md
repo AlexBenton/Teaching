@@ -41,10 +41,11 @@ The `OpenGL Demos` project contains multiple `main()` routines, so it contains m
 
 Main class                                | Description
 ------------------------------------------|------------
-`com.bentonian.gldemos.bezier`            | Bivariate 4x4 Bezier patch
+`com.bentonian.gldemos.beziercurve`       | Monovariate Bezier spline
+`com.bentonian.gldemos.bezierpatch`       | Bivariate 4x4 Bezier patch
 `com.bentonian.gldemos.blobby`            | Implicit surface ("Blobby") model animation
 `com.bentonian.gldemos.marchingcubes`     | Marching cubes in action
-`com.bentonian.gldemos.particles`          | Simple particle system
+`com.bentonian.gldemos.particles`         | Simple particle system
 `com.bentonian.gldemos.sdfpolygonization` | Generating polygons from a GPU-only SDF described in GLSL
 `com.bentonian.gldemos.sdfrender`         | Examples of sphere-marched signed distance field geometry
 `com.bentonian.gldemos.shaders`           | A suite of GLSL shaders applied to a suite of polygonal models

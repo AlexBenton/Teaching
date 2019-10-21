@@ -50,8 +50,12 @@ public class ControlWidget extends Sphere implements MouseEventHandler {
     Double t = ray.intersectPlane(dragPlaneOrigin, dragPlaneNormal);
     if (t != null && isSelected) {
       Vec3 pos = ray.at(t);
-      translate(pos.plus(intersectionOffset).minus(getPosition()));
+      moveWidget(pos.plus(intersectionOffset).minus(getPosition()));
     }
+  }
+  
+  protected void moveWidget(Vec3 delta) {
+    translate(delta);
   }
 
   @Override

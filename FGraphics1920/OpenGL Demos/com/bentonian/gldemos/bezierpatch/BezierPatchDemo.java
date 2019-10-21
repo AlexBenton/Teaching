@@ -1,15 +1,15 @@
-package com.bentonian.gldemos.bezier;
+package com.bentonian.gldemos.bezierpatch;
 
 import com.bentonian.framework.mesh.bezier.BezierPatch;
 import com.bentonian.framework.mesh.bezier.BezierPatchControlLattice;
 import com.bentonian.framework.ui.DemoApp;
 
-public class BezierDemo extends DemoApp {
+public class BezierPatchDemo extends DemoApp {
 
   private final BezierPatch patch;
   private final BezierPatchControlLattice controller;
 
-  protected BezierDemo() {
+  protected BezierPatchDemo() {
     super("Bezier patch");
     this.patch = new BezierPatch();
     this.controller = new BezierPatchControlLattice(this, patch);
@@ -24,6 +24,6 @@ public class BezierDemo extends DemoApp {
   }
 
   public static void main(String[] args) {
-    new BezierDemo().run();
+    new BezierPatchDemo().run();
   }
 }

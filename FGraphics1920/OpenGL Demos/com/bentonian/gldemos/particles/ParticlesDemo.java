@@ -19,7 +19,7 @@ import com.bentonian.framework.ui.Vertex;
 
 public class ParticlesDemo extends DemoApp {
 
-  private static final int NUM_PARTICLES = 10000;
+  private static final int NUM_PARTICLES = 20000;
   private static final float BALL_RADIUS = 0.5f;
   
   private final ShaderAutoloader loader;

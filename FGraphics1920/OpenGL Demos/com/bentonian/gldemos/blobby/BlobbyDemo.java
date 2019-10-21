@@ -2,19 +2,17 @@ package com.bentonian.gldemos.blobby;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import org.lwjgl.glfw.GLFW;
 
 import com.bentonian.framework.material.Colors;
 import com.bentonian.framework.math.Vec3;
+import com.bentonian.framework.mesh.implicits.ForceFunction;
 import com.bentonian.framework.mesh.implicits.ImplicitSurfaceMesh;
 import com.bentonian.framework.mesh.implicits.MetaBall;
 import com.bentonian.framework.mesh.implicits.OctreeEdgeInterpolationData;
-import com.bentonian.framework.mesh.implicits.ForceFunction;
 import com.bentonian.framework.scene.ControlWidget;
 import com.bentonian.framework.ui.DemoApp;
 import com.bentonian.framework.ui.GLFWCanvas;
@@ -24,7 +22,7 @@ public class BlobbyDemo extends DemoApp {
 
   private final FunctionFrame functionFrame;
   private final ImplicitSurfaceMesh surface;
-  private final List<Mover> movers;
+  private final Mover red, blue;
 
   private boolean paused = false;
   private boolean moved = false;
@@ -39,17 +37,22 @@ public class BlobbyDemo extends DemoApp {
 
   public BlobbyDemo() {
     super("Blobby Demo");
-    this.movers = new ArrayList<>();
     this.forceFunction = MoverForceFunction.WYVILL;
     this.functionFrame = new FunctionFrame(this);
+    this.red = new Mover(4, 0, 0, Colors.RED) {
+      @Override
+      public void update(double t) {
+        Vec3 A = blue.getMovedPos();
+        Vec3 B = getMovedPos();
+        t = 0.5 + 0.5 * Math.cos(t);
+        Vec3 interpolated = A.plus(B.minus(A).times(t));
+        translate(interpolated.minus(getPosition()));
+      }
+    };
+    this.blue = new Mover(-4, 0, 0, Colors.BLUE);
     this.surfaceFunction = new ForceFunction()
-        .addForce(new Mover(3, 0, 0, Colors.RED) {
-          @Override
-          public void update(double t) {
-            translate(new Vec3(4 * Math.cos(t), 0, 0).minus(getPosition()));
-          }
-        }.getMetaBall())
-        .addForce(new Mover(-3, 0, 0, Colors.BLUE).getMetaBall());
+        .addForce(red.getMetaBall())
+        .addForce(blue.getMetaBall());
     this.surface = new ImplicitSurfaceMesh(new Vec3(-8,-8,-8), new Vec3(8,8,8), surfaceFunction)
         .setTargetLevel(5)
         .refineCompletely();
@@ -107,9 +110,8 @@ public class BlobbyDemo extends DemoApp {
   protected void draw() {
     preTick();
     surface.render(this);
-    for (Mover mover : movers) {
-      mover.render(this);
-    }
+    red.render(this);
+    blue.render(this);
     postTick();
   }
   
@@ -125,9 +127,8 @@ public class BlobbyDemo extends DemoApp {
     }
     if (!paused) {
       t += ((now-then) * 15.0 / 1000.0) * Math.PI/64.0;
-      for (Mover mover : movers) {
-        mover.update(t);
-      }
+      red.update(t);
+      blue.update(t);
     }
     if (moved) {
       surface.reset();
@@ -199,15 +200,17 @@ public class BlobbyDemo extends DemoApp {
 
   private class Mover extends ControlWidget {
     final MetaBall metaball;
+    
+    Vec3 movedPos;
 
     public Mover(double x, double y, double z, Vec3 color) {
+      movedPos = new Vec3(x, y, z);
       metaball = new MetaBall(x, y, z, 1.0, color) {
         @Override
         public double F(Vec3 v) {
           return forceFunction.F(this.minus(v).length());
         }
       };
-      movers.add(this);
       BlobbyDemo.this.registerMouseHandler(this);
       translate(new Vec3(x, y, z));
     }
@@ -223,8 +226,17 @@ public class BlobbyDemo extends DemoApp {
       return this;
     }
 
+    protected void moveWidget(Vec3 delta) {
+      super.moveWidget(delta);
+      movedPos = getPosition();
+    }
+    
     public MetaBall getMetaBall() {
       return metaball;
+    }
+    
+    public Vec3 getMovedPos() {
+      return movedPos;
     }
   }
 

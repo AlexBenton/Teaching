@@ -34,8 +34,7 @@ public class SDFRenderDemo extends DemoApp {
     "raytracing.fsh", 
     "simple metaballs.fsh", 
     "lecture demo.fsh",
-//    "noise.fsh",
-//    "bezier.fsh",
+    "noise.fsh",
   };
 
   private final Square square;
