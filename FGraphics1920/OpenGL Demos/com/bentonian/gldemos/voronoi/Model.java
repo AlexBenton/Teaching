@@ -10,7 +10,7 @@ import com.bentonian.framework.mesh.primitive.Torus;
 import com.bentonian.framework.scene.Primitive;
 
 public enum Model {
-  CUBE(new Cube()),
+  CUBE(new Cube().scale(new Vec3(1.5,1.9,1))),
   SPHERE(new Sphere()),
   TORUS(new Torus()),
   TEAPOT(new MeshPrimitive(OFFUtil.parseFile("teapot.off"))),

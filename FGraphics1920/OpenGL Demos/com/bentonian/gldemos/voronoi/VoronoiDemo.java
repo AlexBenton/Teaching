@@ -25,11 +25,13 @@ public class VoronoiDemo extends DemoApp {
   private Vec3[] seedCoords = new Vec3[NUM_SEEDS];
   private FloatBuffer seeds = null;
   private int numSeeds = 0;
+  private long startTime;
   
   public VoronoiDemo() {
     super("Voronoi Cells demo");
     this.model = Model.CUBE;
     setCameraDistance(CAMERA_DISTANCE);
+    startTime = System.currentTimeMillis();
 
     updateSeedsBuffer();
     String root = VoronoiDemo.class.getPackage().getName().replace(".", "/") + "/";
@@ -120,6 +122,7 @@ public class VoronoiDemo extends DemoApp {
   protected void draw() {
     updateUniformInt("numSeeds", numSeeds);
     updateUniform3fv("seeds", seeds);    
+    updateUniformFloat("iGlobalTime", (System.currentTimeMillis() - startTime) / 1000.0f);
     model.getGeometry().render(this);
   }
 

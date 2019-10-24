@@ -1,10 +1,9 @@
 #version 430
 
-//#define ADAPTIVE
-#define ADAPTIVE_SEGMENTS 25
-#define ITERATIVE_STEPS 50
-#define TOLERANCE 0.01
+#define ADAPTIVE_SEGMENTS 50
+#define FLATNESS_THRESHOLD 0.001
 #define ENVELOPE_MARGIN 0.11
+#define ITERATIVE_STEPS 50
 
 uniform vec2 iResolution;
 uniform float iGlobalTime;
@@ -59,8 +58,8 @@ float distanceToCubicEnvelope(Cubic c, vec2 pt) {
 }
 
 bool isFlat(in Cubic c) {
-  return distanceToLineSegment(c.A, c.D, c.B) <= TOLERANCE
-      && distanceToLineSegment(c.A, c.D, c.C) <= TOLERANCE;
+  return distanceToLineSegment(c.A, c.D, c.B) <= FLATNESS_THRESHOLD
+      && distanceToLineSegment(c.A, c.D, c.C) <= FLATNESS_THRESHOLD;
 }
 
 void subdivide(in Cubic c, out Cubic q, out Cubic r) {
@@ -127,24 +126,6 @@ float distanceIterative(in Cubic c, vec2 pt) {
   return distance;
 }
 
-float distanceToCubic(in Cubic c, vec2 pt) {
-  float envelope = distanceToCubicEnvelope(c, pt);
-  if (envelope > ENVELOPE_MARGIN) {
-    return envelope;
-  }
-
-#ifdef ADAPTIVE
-  int steps;
-  return distanceAdaptive(c, pt, steps);
-#else
-  return distanceIterative(c, pt);
-#endif
-}
-
-Cubic getCubic() {
-  return Cubic(seeds[0].xy, seeds[1].xy, seeds[2].xy, seeds[3].xy);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void main() {
@@ -152,13 +133,19 @@ void main() {
       (texCoord.x * 2 - 1) * iResolution.x / iResolution.y, 
       texCoord.y * 2 - 1);
   vec3 color = white;
-  Cubic c = getCubic();
+  Cubic c = Cubic(seeds[0].xy, seeds[1].xy, seeds[2].xy, seeds[3].xy);
+  float distanceToCubic;
+  int steps = 0;
 
+  distanceToCubic = distanceAdaptive(c, pt, steps);
+//  distanceToCubic = distanceIterative(c, pt);
+  
   if (isGridEdge(pt)) {
     color = gray;
   }
-  if (distanceToCubic(c, pt) < 0.05) {
+  if (distanceToCubic < 0.05) {
     color = black;
+//    color = mix(blue, red, steps / 10);
   }
   if (isControlPoint(pt)) {
     color = green;
